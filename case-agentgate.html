@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AgentGate — Case Study</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site-nav">
+  <div class="wrap">
+    <div class="brand">harithareddy<span>.dev</span></div>
+    <nav>
+      <a href="index.html">Work</a>
+      <a href="about.html">About</a>
+      <a href="case-oncall.html" class="current">Case studies</a>
+      <a href="mailto:harithareddy.c@gmail.com" class="cta">Get in touch</a>
+    </nav>
+  </div>
+</header>
+
+<section class="cs-header">
+  <div class="wrap">
+    <a href="index.html" class="back">← All work</a>
+    <div class="eyebrow">Concept · AI Agent Governance · Identity Strategy</div>
+    <h1>AgentGate — Access Control for AI Agents</h1>
+    <p class="lede">
+      A concept prototype arguing that AI agents are a missing identity class in enterprise IAM —
+      and sketching what a runtime governance layer would look like to fill that gap.
+    </p>
+    <div class="cs-meta-row">
+      <div class="cs-meta-item"><div class="k">Type</div><div class="v">Concept walkthrough / hackathon prototype</div></div>
+      <div class="cs-meta-item"><div class="k">Role</div><div class="v">Product strategy & concept design</div></div>
+      <div class="cs-meta-item"><div class="k">Status</div><div class="v">Concept — not a shipped product</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+
+    <div class="cs-block">
+      <h2>The gap this is addressing</h2>
+      <p>
+        Most enterprise IAM frameworks are built around two identity classes: humans (governed by access request
+        workflows, role assignments, and recertification) and services/applications (governed by service accounts,
+        API keys, and machine credentials). Both classes have reasonably mature governance models.
+      </p>
+      <p>
+        AI agents don't fit cleanly into either. They act dynamically — a single agent might read from an inventory
+        system, write to a finance platform, and call a vendor API in a single workflow — but they're typically
+        granted access the way a service account would be: one set of credentials, broad scope, long-lived. The
+        problem is that an agent's behavior is inherently variable in a way a conventional service's isn't.
+      </p>
+      <p>
+        Standing privilege plus dynamic behavior is exactly the combination that creates blast radius risk. AgentGate
+        is the question: what if AI agents had the same governance model as humans — policy-based approval,
+        temporary scoped access, and live revocation when behavior drifts?
+      </p>
+    </div>
+
+    <div class="cs-block">
+      <h2>The concept walkthrough</h2>
+      <p>
+        The walkthrough runs through eight slides: the gap, the wedge (why the familiar governance model transfers),
+        the product concept (one runtime control point between agent and enterprise system), the differentiator
+        (session-level revocation, not just gate-level approval), the MVP scope, and the value framing. It's
+        deliberately positioned as a concept, not a spec — the goal is to name the governance gap clearly enough
+        that the product conversation can start.
+      </p>
+      <div class="demo-frame">
+        <div class="frame-bar">
+          <div class="dots"><span></span><span></span><span></span></div>
+          agentgate-demo.html — use left/right arrow keys or Prev/Next buttons to navigate
+        </div>
+        <iframe src="AgentGate_killer_pitch.html" title="AgentGate concept walkthrough" loading="lazy"></iframe>
+      </div>
+      <p style="margin-top:14px; font-size:13px; color:var(--text-faint);">
+        Navigate with the arrow keys or Prev/Next buttons at the bottom of the deck.
+        8 slides covering: the gap, the wedge, the product, the differentiator, the MVP, and the value.
+      </p>
+    </div>
+
+    <div class="cs-block">
+      <h2>The argument in one paragraph</h2>
+      <p>
+        Enterprises already know how to govern human identities and service identities — they've built workflows,
+        tooling, and audit infrastructure for both. AI agents need a third model that borrows from both:
+        the approval-workflow discipline of human identity governance, and the credential-scoping discipline of
+        service identity governance, plus one new capability that neither model requires today — live session
+        revocation when behavior deviates from what was approved. That's the control plane that's currently
+        missing, and it's missing because agents didn't exist as an identity class when the governance frameworks
+        were designed.
+      </p>
+    </div>
+
+    <div class="cs-block">
+      <h2>Connection to real IAM experience</h2>
+      <p>
+        This concept isn't speculative in isolation — it's a direct extension of the NHI/NUA governance work in
+        the experience timeline. Non-human identity governance (service accounts, API tokens, machine credentials)
+        is already an unsolved problem at scale in most enterprises. AI agents make it more urgent because the
+        consequences of a misconfigured agent credential are larger and faster than a misconfigured service account:
+        agents can act across multiple systems autonomously before anyone notices something is wrong.
+      </p>
+      <p>
+        The PM question AgentGate is really asking is: how do you extend the access governance model you already
+        have — rather than building a parallel system from scratch — to cover this new identity class?
+      </p>
+    </div>
+
+    <div class="cs-block">
+      <h2>Key elements of the concept</h2>
+      <div class="ledger">
+        <div class="ledger-row">
+          <div class="ledger-time">Control point</div>
+          <div class="ledger-main">
+            <div class="title">Runtime policy enforcement</div>
+            <div class="desc">One gate between the agent and the enterprise system — policy-based approve, escalate, or deny at the time of the access request, not at provisioning time.</div>
+          </div>
+          <div class="ledger-status"><span class="status-pill concept">Concept</span></div>
+        </div>
+        <div class="ledger-row">
+          <div class="ledger-time">Scoped access</div>
+          <div class="ledger-main">
+            <div class="title">Temporary, minimal grants</div>
+            <div class="desc">Approved access is time-bounded and scoped to the specific task — not a long-lived credential that covers everything the agent might ever need.</div>
+          </div>
+          <div class="ledger-status"><span class="status-pill concept">Concept</span></div>
+        </div>
+        <div class="ledger-row">
+          <div class="ledger-time">Live revocation</div>
+          <div class="ledger-main">
+            <div class="title">Session-level kill switch</div>
+            <div class="desc">If an active session shows behavioral drift — abnormal volume, lateral movement, scope creep — the session is revoked, not just flagged for review.</div>
+          </div>
+          <div class="ledger-status"><span class="status-pill review">Key differentiator</span></div>
+        </div>
+        <div class="ledger-row">
+          <div class="ledger-time">Human in loop</div>
+          <div class="ledger-main">
+            <div class="title">Escalation for high-risk requests</div>
+            <div class="desc">High-risk requests (write access to finance systems, sensitive data) route to a human reviewer who can narrow scope or deny before access is granted.</div>
+          </div>
+          <div class="ledger-status"><span class="status-pill granted">Critical</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="wrap cs-nav-footer">
+  <a href="case-entitlementiq.html" class="btn">← EntitlementIQ</a>
+  <a href="index.html" class="btn primary">Back to all work →</a>
+</div>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="copy">Haritha Reddy · Bengaluru, India</div>
+    <div class="links">
+      <a href="https://linkedin.com/in/harithareddychavva" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="mailto:harithareddy.c@gmail.com">Email</a>
+      <a href="about.html">Resume</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

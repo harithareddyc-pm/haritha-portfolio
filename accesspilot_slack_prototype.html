@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AccessPilot — AI Incident Triage Demo</title>
+<style>
+:root{--bg:#0b1020;--panel:#111827;--panel2:#0f172a;--border:rgba(255,255,255,.1);--text:#e5e7eb;--muted:#94a3b8;--violet:#8b5cf6;--violet2:rgba(139,92,246,.18);--red:#ef4444;--red2:rgba(239,68,68,.18);--green:#22c55e;--green2:rgba(34,197,94,.15);--amber:#f59e0b;--amber2:rgba(245,158,11,.18);--blue:#3b82f6;--blue2:rgba(59,130,246,.18)}
+*{box-sizing:border-box} body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden}
+.app{display:flex;height:100vh}.sidebar{width:250px;background:#070b16;border-right:1px solid var(--border);padding:16px;display:flex;flex-direction:column;gap:14px}
+.workspace{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:16px;padding:12px;display:flex;gap:12px;align-items:center}
+.logo{width:40px;height:40px;border-radius:12px;background:var(--violet2);color:#ddd6fe;display:flex;align-items:center;justify-content:center;font-size:18px}
+.workspace .title{font-size:14px;font-weight:700}.workspace .sub{font-size:12px;color:var(--muted)}
+.sidebar h4{margin:6px 8px 0;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#64748b}
+.channel{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:12px;color:#cbd5e1;cursor:pointer;font-size:14px}
+.channel:hover{background:rgba(255,255,255,.04)}.channel.active{background:var(--violet2);color:white}
+.channel .badge{margin-left:auto;background:var(--red);color:white;border-radius:999px;font-size:10px;font-weight:700;padding:2px 6px}
+.main{flex:1;display:flex;min-width:0}.feed-area{flex:1;display:flex;flex-direction:column;min-width:0;background:linear-gradient(180deg,#0f172a,#111827)}
+.header{height:64px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex-shrink:0}
+.header .left .name{font-size:20px;font-weight:700}.header .left .desc{font-size:13px;color:var(--muted)}
+.search{border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted);padding:10px 14px;border-radius:12px;font-size:14px}
+.feed{flex:1;overflow:auto}.msg{display:flex;gap:12px;padding:16px 24px}.msg:hover{background:rgba(255,255,255,.02)}
+.avatar{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid var(--border);font-size:18px}
+.avatar.go{background:var(--red2);color:#fca5a5;border-color:rgba(239,68,68,.3)}.avatar.bot{background:var(--violet2);color:#ddd6fe;border-color:rgba(139,92,246,.3)}
+.msg-body{min-width:0;flex:1}.meta{display:flex;align-items:center;gap:8px;margin-bottom:8px}.author{font-weight:700}.time{font-size:12px;color:#64748b}
+.pill{display:inline-flex;align-items:center;border:1px solid var(--border);padding:3px 8px;border-radius:999px;font-size:12px}.pill.red{background:var(--red2);color:#fecaca;border-color:rgba(239,68,68,.3)}.pill.amber{background:var(--amber2);color:#fde68a;border-color:rgba(245,158,11,.3)}.pill.green{background:var(--green2);color:#bbf7d0;border-color:rgba(34,197,94,.3)}
+.card{border:1px solid var(--border);background:rgba(255,255,255,.03);border-radius:16px;padding:14px}.card .line{font-size:14px;line-height:1.55;margin:2px 0}.card .heading{font-weight:700;color:#fff;margin-top:8px}
+.links,.actions,.subactions,.inline-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chip,.btn{border:1px solid var(--border);background:rgba(255,255,255,.04);color:#e2e8f0;border-radius:12px;padding:8px 12px;font-size:13px;cursor:pointer}
+.btn.primary{background:var(--violet2);border-color:rgba(139,92,246,.35);color:#f5f3ff}
+.thread-link{margin-top:12px;color:#c4b5fd;font-size:14px;font-weight:600;cursor:pointer;display:inline-block}
+.composer{border-top:1px solid var(--border);padding:16px 24px;flex-shrink:0}.composer .box{border:1px solid var(--border);background:rgba(255,255,255,.03);border-radius:16px;padding:12px 14px;color:#64748b;font-size:14px}
+.thread{width:430px;border-left:1px solid var(--border);background:#070b16;display:none;flex-direction:column;flex-shrink:0}.thread.open{display:flex}
+.thread-header,.thread-footer{padding:14px 16px;border-bottom:1px solid var(--border);flex-shrink:0}.thread-header{display:flex;justify-content:space-between;align-items:center}.thread-header .small{font-size:13px;color:var(--muted)}
+.thread-list{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:14px}.thread-card{border:1px solid var(--border);background:rgba(255,255,255,.03);border-radius:16px;padding:14px}
+.thread-card.highlight{box-shadow:0 0 0 1px rgba(139,92,246,.45);border-color:rgba(139,92,246,.45)}
+.thread-meta{display:flex;align-items:center;gap:8px;margin-bottom:10px}.thread-icon{width:36px;height:36px;border-radius:12px;border:1px solid rgba(139,92,246,.35);background:var(--violet2);color:#ddd6fe;display:flex;align-items:center;justify-content:center}
+.thread-title{font-weight:600}.chart{margin-top:14px;border:1px solid rgba(34,197,94,.22);background:rgba(34,197,94,.06);border-radius:16px;padding:14px}
+.chart-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.bars{height:96px;display:flex;gap:8px;align-items:flex-end}.bar{flex:1;background:linear-gradient(to top, rgba(34,197,94,.35), rgba(134,239,172,.85));border-radius:8px 8px 0 0}
+.incident-view{padding:24px}.incident-view .incident-card{max-width:860px}
+@media (max-width:1100px){.thread{position:absolute;right:0;top:0;height:100vh;z-index:3}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="workspace"><div class="logo">✦</div><div><div class="title">Sentra Ops</div><div class="sub">Incident workspace</div></div></div>
+    <h4>Channels</h4>
+    <div id="channels"></div>
+  </aside>
+  <div class="main">
+    <div class="feed-area">
+      <div class="header"><div class="left"><div class="name" id="channelName">#sentinel-alerts</div><div class="desc">Slack-style incident workflow prototype</div></div><div class="search">Search</div></div>
+      <div class="feed" id="feed"></div>
+      <div class="composer"><div class="box">Message composer disabled in prototype mode</div></div>
+    </div>
+    <aside class="thread" id="thread">
+      <div class="thread-header"><div><div style="font-weight:700">Thread</div><div class="small">Incident investigation</div></div><button class="btn" id="closeThread">Close</button></div>
+      <div class="thread-list" id="threadList"></div>
+      <div class="thread-footer"><button class="btn primary" id="continueBtn">Continue Investigation</button> <button class="btn" id="clearFocusBtn">Clear Focus</button></div>
+    </aside>
+  </div>
+</div>
+<script>
+const state={activeChannel:"sentinel-alerts",threadOpen:false,stage:0,focus:null};
+const channels=["general","engineering","oncall","sentinel-alerts","auth-platform","inc-auth-gateway-svc-4xx"];
+const pagerLineMessages=[
+{id:"pagerline-1",author:"PagerLine",time:"10:42 AM",lines:[":rotating_light: PagerLine Incident Triggered","","Service: auth-gateway-svc","System: Sentinel","Severity: SEV-2","Alert: [Alerting] 4XX - auth-gateway-svc [Alerts 4XX > 1000] alert","Summary: 4XX counts are more than threshold","Metric: http_response.total_tps = 18378","Status: Triggered","Time: 10:42 UTC","","Links","• Runbook","• Dashboard","","On-call engineer has been notified via PagerLine."],threadCount:8},
+{id:"pagerline-2",author:"PagerLine",time:"10:42 AM",lines:[":telephone_receiver: Primary on-call has been paged. Escalation policy: Auth Primary Escalation"]}
+];
+const threadMessages=[
+{id:"thread-1",stage:0,icon:"🤖",time:"10:43 AM",title:":robot_face: AccessPilot is investigating this incident",lines:["I’m gathering context from:","• linked runbook","• alert dashboard","• recent deploy/config history","• similar historical incidents","• current auth-gateway-svc error pattern","","I’ll post a structured diagnosis here."]},
+{id:"thread-2",stage:1,icon:"🔎",time:"10:44 AM",title:":mag: AccessPilot Incident Summary",lines:["Sentinel detected a sustained 4XX spike for auth-gateway-svc. The alert condition Alerts 4XX > 1000 fired, and http_response.total_tps is currently 18378.","","Blast radius","LDAP-backed requests are returning elevated 4XX responses. This may impact authentication and directory-dependent flows.","","Most likely causes","1. Request/auth validation issue causing elevated 4XX responses","2. Recent config or routing regression affecting LDAP request handling","3. High-volume bad client traffic from an upstream dependency","","What I checked","• linked LDAP 4XX remediation runbook","• Sentinel alert dashboard","• recent change history","• historical incidents with similar 4XX patterns","","Status","Investigating"],status:"Investigating"},
+{id:"thread-3",stage:2,icon:"📚",time:"10:44 AM",title:":books: Similar incident history",lines:["I found a strong historical match.","","Most relevant prior incident","Incident: INC-214","Date: Jan 2026","Match: sudden 4XX increase on auth-gateway-svc after config change","Root cause: invalid request validation rule deployment","Resolution: reverted latest config change","Outcome: 4XX rate normalized within 6 minutes","","This increases confidence that the current incident may be change-related rather than traffic noise alone."]},
+{id:"thread-4",stage:3,icon:"📋",time:"10:45 AM",title:":clipboard: Evidence summary",lines:["Signal observed","• 4XX threshold breached for auth-gateway-svc","• metric value is significantly above baseline","","Correlations to verify","• whether the spike began immediately after a config or routing change","• whether one endpoint or caller is dominating 4XX volume","• whether auth/request validation failures increased at the same timestamp","","Recommended next checks","1. Compare alert start time with latest auth-gateway-svc deploy/config changes","2. Identify top caller, endpoint, or client contributing to 4XXs","3. Follow the linked runbook steps for LDAP 4XX investigation","4. Notify LDAP service owner if impact is user-facing"],actions:["View Evidence","Open Runbook","View Similar Incidents"]},
+{id:"thread-5",stage:4,icon:"⚠️",time:"10:46 AM",title:":warning: Recommended next action",lines:["Top recommendation","Review and revert the latest auth-gateway-svc config or routing change if it aligns with the alert start time.","","Other actions","• identify the top caller contributing to 4XX volume","• confirm active customer or internal impact","• notify LDAP service owner","• continue monitoring dashboard and alert state after mitigation","","Confidence","0.78","","Approval required before any corrective action is taken."],actions:["View Evidence","Open Runbook","View Similar Incidents","Approve Rollback/Revert","Create Incident Channel"]},
+{id:"thread-6",stage:5,icon:"✅",time:"10:47 AM",title:":white_check_mark: Action approved",lines:["Approved action: revert latest auth-gateway-svc config/routing change.","","Executing mitigation now and monitoring 4XX trend."],meta:["Action submitted","Monitoring in progress"]},
+{id:"thread-7",stage:6,icon:"📉",time:"10:49 AM",title:":chart_with_downwards_trend: Mitigation update",lines:["Action taken","Latest auth-gateway-svc config change was reverted.","","Current status","4XX rate is trending down from incident peak. AccessPilot is continuing to monitor the dashboard and alert condition.","","Incident state","Triggered -> Investigating -> Mitigating -> Recovering"],chart:true},
+{id:"thread-8",stage:7,icon:"🟢",time:"10:52 AM",title:":large_green_circle: Recovery looks stable",lines:["4XX volume has continued to decline after rollback, and the alert is no longer increasing at the previous rate.","","Suggested next steps","• keep monitoring for 5 more minutes","• confirm impacted flows are healthy","• capture incident notes for postmortem","","Status","Recovering"],status:"Recovering"}
+];
+const incidentMessage=[":rotating_light: Incident channel created for auth-gateway-svc 4XX spike","","Summary","Sentinel detected elevated 4XX responses on auth-gateway-svc. PagerLine paged primary on-call at 10:42 UTC.","","Current assessment","Likely change-related regression based on alert pattern, linked runbook guidance, and similar historical incident INC-214.","","Recommended mitigation","Revert latest auth-gateway-svc config/routing change if verified against incident start time.","","Reference thread","See original alert discussion in #sentinel-alerts."];
+const headings=new Set(["Blast radius","Most likely causes","What I checked","Status","Most relevant prior incident","Signal observed","Correlations to verify","Recommended next checks","Top recommendation","Other actions","Confidence","Action taken","Current status","Incident state","Suggested next steps","Summary","Current assessment","Recommended mitigation","Reference thread"]);
+function el(tag, cls, text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;}
+function renderChannels(){const wrap=document.getElementById("channels");wrap.innerHTML="";channels.forEach(ch=>{const item=el("div","channel"+(state.activeChannel===ch?" active":""));item.innerHTML=`<span>#</span><span>${ch}</span>${ch==="sentinel-alerts"?'<span class="badge">2</span>':''}`;item.onclick=()=>{state.activeChannel=ch;if(ch!=="sentinel-alerts")state.threadOpen=false;render();};wrap.appendChild(item);});}
+function renderLines(container, lines){lines.forEach(line=>{if(line===""){const s=el("div");s.style.height="4px";container.appendChild(s);return;}const d=el("div","line"+(headings.has(line)?" heading":""));d.textContent=line;container.appendChild(d);});}
+function renderFeed(){const feed=document.getElementById("feed");document.getElementById("channelName").textContent="#"+state.activeChannel;feed.innerHTML="";if(state.activeChannel==="inc-auth-gateway-svc-4xx"){const wrap=el("div","incident-view");const msg=el("div","msg");const avatar=el("div","avatar bot","🛡️");const body=el("div","msg-body");const meta=el("div","meta");meta.innerHTML=`<div class="author">AccessPilot</div><div class="pill" style="background:var(--violet2);border-color:rgba(139,92,246,.3);color:#ddd6fe">bot</div><div class="time">10:53 AM</div>`;const card=el("div","card incident-card");renderLines(card,incidentMessage);body.appendChild(meta);body.appendChild(card);msg.appendChild(avatar);msg.appendChild(body);wrap.appendChild(msg);feed.appendChild(wrap);return;}
+pagerLineMessages.forEach((m,idx)=>{const msg=el("div","msg");const avatar=el("div","avatar go","🚨");const body=el("div","msg-body");const meta=el("div","meta");meta.innerHTML=`<div class="author">${m.author}</div><div class="time">${m.time}</div>${idx===0?'<div class="pill red">Triggered</div>':''}`;const card=el("div","card");renderLines(card,m.lines);if(idx===0){const links=el("div","links");["Runbook","Dashboard"].forEach(t=>links.appendChild(el("button","chip",t)));card.appendChild(links);const threadLink=el("div","thread-link","8 replies");threadLink.onclick=()=>{state.threadOpen=true;render();};body.appendChild(meta);body.appendChild(card);body.appendChild(threadLink);msg.onclick=(e)=>{if(e.target.classList.contains("chip")) return; state.threadOpen=true; render();};}else{body.appendChild(meta);body.appendChild(card);}msg.prepend(avatar);msg.appendChild(body);feed.appendChild(msg);});}
+function renderThread(){const thread=document.getElementById("thread");const list=document.getElementById("threadList");const continueBtn=document.getElementById("continueBtn");thread.classList.toggle("open",state.threadOpen&&state.activeChannel==="sentinel-alerts");list.innerHTML="";const visible=threadMessages.filter(m=>m.stage<=state.stage);visible.forEach(m=>{const card=el("div","thread-card"+(state.focus===m.id?" highlight":""));const meta=el("div","thread-meta");meta.innerHTML=`<div class="thread-icon">${m.icon}</div><div style="min-width:0;flex:1"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><div style="font-weight:700">AccessPilot</div><div class="pill" style="background:var(--violet2);border-color:rgba(139,92,246,.3);color:#ddd6fe">bot</div><div class="time">${m.time}</div></div><div class="thread-title">${m.title}</div></div>`;card.appendChild(meta);const content=el("div","card");content.style.background="transparent";content.style.border="0";content.style.padding="0";renderLines(content,m.lines);card.appendChild(content);if(m.status){const row=el("div","inline-pills");row.innerHTML=`<div class="pill ${m.status==="Investigating"?"amber":"green"}">${m.status}</div>`;card.appendChild(row);}if(m.meta){const row=el("div","inline-pills");m.meta.forEach(x=>{const p=el("div","pill");p.style.background="var(--blue2)";p.style.borderColor="rgba(59,130,246,.28)";p.style.color="#bfdbfe";p.textContent=x;row.appendChild(p);});card.appendChild(row);}if(m.chart){const chart=el("div","chart");chart.innerHTML=`<div class="chart-top"><div style="font-weight:700">4XX trend</div><div class="pill green">Decreasing</div></div>`;const bars=el("div","bars");[90,76,61,47,31,22,14].forEach(v=>{const bar=el("div","bar");bar.style.height=v+"%";bars.appendChild(bar);});chart.appendChild(bars);card.appendChild(chart);}if(m.actions){const actions=el("div","actions");m.actions.forEach(a=>{const btn=el("button","btn"+(a==="Approve Rollback/Revert"?" primary":""),a);btn.onclick=()=>handleAction(a);actions.appendChild(btn);});card.appendChild(actions);}list.appendChild(card);});continueBtn.style.display=state.stage<4?"inline-flex":"none";}
+function handleAction(action){if(action==="View Similar Incidents"){state.stage=Math.max(state.stage,2);state.focus="thread-3";}else if(action==="View Evidence"){state.stage=Math.max(state.stage,3);state.focus="thread-4";}else if(action==="Approve Rollback/Revert"){state.stage=7;state.focus="thread-6";}else if(action==="Create Incident Channel"){state.activeChannel="inc-auth-gateway-svc-4xx";state.threadOpen=false;}else{state.focus=null;}render();}
+document.getElementById("closeThread").onclick=()=>{state.threadOpen=false;render();};
+document.getElementById("continueBtn").onclick=()=>{state.stage=Math.min(state.stage+1,4);render();};
+document.getElementById("clearFocusBtn").onclick=()=>{state.focus=null;render();};
+function render(){renderChannels();renderFeed();renderThread();}
+render();
+</script>
+</body>
+</html>

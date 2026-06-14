@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AgentGate — AI Agent Access Governance</title>
+<style>
+  :root {
+    --bg:#0b1020;
+    --bg2:#11172a;
+    --card:#171f36;
+    --text:#f5f7fb;
+    --muted:#aab4c5;
+    --accent:#6366f1;
+    --accent2:#818cf8;
+    --green:#22c55e;
+    --yellow:#f59e0b;
+    --border:#2a3553;
+  }
+  * { box-sizing:border-box; }
+  html, body { margin:0; padding:0; height:100%; font-family: Inter, Segoe UI, Arial, sans-serif; background:linear-gradient(135deg,var(--bg),#0f172a); color:var(--text); overflow:hidden; }
+  .deck { position:relative; width:100vw; height:100vh; }
+  .slide { position:absolute; inset:0; opacity:0; pointer-events:none; transform:translateX(40px); transition:all .35s ease; padding:56px 68px 80px; display:flex; flex-direction:column; justify-content:center; }
+  .slide.active { opacity:1; pointer-events:auto; transform:translateX(0); }
+  .eyebrow { color:#ffb4b4; font-size:13px; text-transform:uppercase; letter-spacing:2px; font-weight:700; margin-bottom:18px; }
+  h1 { font-size:54px; line-height:1.05; margin:0 0 18px; max-width:1000px; }
+  h2 { font-size:40px; line-height:1.1; margin:0 0 18px; max-width:980px; }
+  .sub { font-size:22px; line-height:1.55; color:var(--muted); max-width:920px; }
+  .accent { color:#ff7676; }
+  .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-top:28px; }
+  .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:22px; margin-top:24px; }
+  .card { background:rgba(23,31,54,.92); border:1px solid var(--border); border-radius:18px; padding:22px 22px; box-shadow:0 10px 26px rgba(0,0,0,.20); }
+  .big { font-size:22px; font-weight:800; margin-bottom:8px; }
+  .small { color:var(--muted); font-size:16px; line-height:1.5; }
+  .hero-line { font-size:28px; line-height:1.45; max-width:980px; margin-top:24px; }
+  .hero-line strong { color:#fff; }
+  .compare { display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; margin-top:28px; }
+  .compare .card { text-align:center; min-height:180px; display:flex; flex-direction:column; justify-content:center; }
+  .compare .icon { font-size:36px; margin-bottom:12px; }
+  .compare .title { font-weight:800; font-size:18px; margin-bottom:8px; }
+  .compare .status { font-size:14px; font-weight:700; }
+  .ok { color:var(--green); }
+  .bad { color:#ff8a8a; }
+  .flow { display:flex; align-items:center; gap:14px; margin-top:28px; flex-wrap:wrap; }
+  .flow .node { background:rgba(23,31,54,.95); border:1px solid var(--border); border-radius:16px; min-width:150px; padding:18px 16px; text-align:center; }
+  .flow .node.main { border-color:#ff6b6b; background:#25131d; }
+  .flow .arrow { font-size:30px; color:#7d8bb1; }
+  .chiprow { display:flex; gap:12px; flex-wrap:wrap; margin-top:24px; }
+  .chip { border-radius:999px; padding:10px 16px; font-size:14px; font-weight:700; border:1px solid var(--border); }
+  .g { background:#0f2b1b; color:#8ef0b2; border-color:#1f6f46; }
+  .y { background:#34240b; color:#ffc86b; border-color:#8a5b11; }
+  .r { background:#321016; color:#ff9e9e; border-color:#7d2532; }
+  .purple { background:#211533; color:#ccb5ff; border-color:#6740a7; }
+  .demo-box { margin-top:24px; padding:22px; background:rgba(15,23,42,.6); border:1px dashed #506189; border-radius:18px; }
+  .demo-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:18px; }
+  .metric-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-top:28px; }
+  .metric { background:rgba(23,31,54,.9); border:1px solid var(--border); border-radius:18px; padding:24px; text-align:center; }
+  .metric .num { font-size:44px; font-weight:900; }
+  .metric .lbl { color:var(--muted); font-size:14px; margin-top:8px; line-height:1.4; }
+  .close { font-size:32px; line-height:1.5; max-width:980px; }
+  .close strong { color:#fff; }
+  .footer { position:absolute; left:0; right:0; bottom:18px; text-align:center; color:#7f8aa6; font-size:12px; }
+  .nav { position:fixed; bottom:18px; left:50%; transform:translateX(-50%); z-index:20; display:flex; gap:10px; align-items:center; background:rgba(8,12,22,.85); border:1px solid var(--border); border-radius:999px; padding:10px 16px; }
+  .btn { background:#151d33; color:#e8edf7; border:1px solid var(--border); border-radius:10px; padding:8px 12px; font-size:13px; cursor:pointer; }
+  .dots { display:flex; gap:8px; }
+  .dot { width:8px; height:8px; border-radius:50%; background:#33415f; cursor:pointer; }
+  .dot.active { background:var(--accent2); transform:scale(1.25); }
+  .counter { width:48px; text-align:center; color:var(--muted); font-size:13px; }
+  @media (max-width: 1100px) {
+    .grid-3, .compare, .metric-grid { grid-template-columns:1fr; }
+    .grid-2, .demo-grid { grid-template-columns:1fr; }
+    .flow { display:grid; grid-template-columns:1fr; }
+    .flow .arrow { display:none; }
+    h1 { font-size:42px; }
+    h2 { font-size:32px; }
+    .sub { font-size:18px; }
+  }
+</style>
+</head>
+<body>
+<div class="deck">
+  <section class="slide active">
+    <div class="eyebrow">Concept Prototype · AI Agent Identity Governance</div>
+    <h1>Humans have <span class="accent">AccessHub</span>.<br>Services have IAM.<br><span class="accent">AI agents are the missing identity class.</span></h1>
+    <div class="sub">AgentGate gives AI agents the same governance model most enterprises already understand: policy-based approval, temporary scoped access, and live revocation when behavior changes.</div>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">The problem</div>
+    <h2>AI agents act <span class="accent">dynamically</span>.<br>Enterprise access is still <span class="accent">static</span>.</h2>
+    <div class="grid-3">
+      <div class="card"><div class="big">Standing privilege</div><div class="small">Agents often get long-lived tokens or broad service access because runtime control is hard.</div></div>
+      <div class="card"><div class="big">Weak accountability</div><div class="small">Teams cannot easily answer who approved access, for what task, and for how long.</div></div>
+      <div class="card"><div class="big">No live containment</div><div class="small">Initial approval is not enough if an agent starts behaving outside its normal boundary.</div></div>
+    </div>
+    <div class="hero-line"><strong>The pitch:</strong> replace standing trust with runtime control for AI agents.</div>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">The wedge</div>
+    <h2>This works because the model is already familiar.</h2>
+    <div class="compare">
+      <div class="card">
+        <div class="icon">👤</div>
+        <div class="title">Humans</div>
+        <div class="small">Access request + approval</div>
+        <div class="status ok">Governed by AccessHub</div>
+      </div>
+      <div class="card">
+        <div class="icon">⚙️</div>
+        <div class="title">Applications / services</div>
+        <div class="small">Identity + policy</div>
+        <div class="status ok">Governed by IAM</div>
+      </div>
+      <div class="card" style="border-color:#7d2532;background:#231017;">
+        <div class="icon">🤖</div>
+        <div class="title">AI agents</div>
+        <div class="small">Can act across apps and data</div>
+        <div class="status bad">Missing equivalent governance layer</div>
+      </div>
+    </div>
+    <div class="hero-line"><strong>AgentGate = AccessHub for AI agents.</strong></div>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">The product</div>
+    <h2>Put one runtime control point between the agent and the enterprise system.</h2>
+    <div class="flow">
+      <div class="node"><div class="big">AI agent</div><div class="small">Requests access for a task</div></div>
+      <div class="arrow">→</div>
+      <div class="node main"><div class="big">AgentGate</div><div class="small">Policy + risk + JIT decision</div></div>
+      <div class="arrow">→</div>
+      <div class="node"><div class="big">Enterprise app</div><div class="small">Gets only scoped temporary access</div></div>
+    </div>
+    <div class="chiprow">
+      <div class="chip g">Approve — short-lived scoped access</div>
+      <div class="chip y">Escalate — human review</div>
+      <div class="chip r">Deny — no system access</div>
+      <div class="chip purple">Revoke — kill active session if behavior changes</div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">The real differentiator</div>
+    <h2>A gate at the door is not enough.</h2>
+    <div class="grid-2">
+      <div class="card">
+        <div class="big">What most controls do</div>
+        <div class="small">Check identity once, issue access, and hope the session stays inside expected behavior.</div>
+      </div>
+      <div class="card" style="border-color:#6740a7; background:#1e1830;">
+        <div class="big">What AgentGate does differently</div>
+        <div class="small">Evaluate the request up front, then watch the live session for drift, abnormal volume, lateral movement, or scope creep and revoke immediately.</div>
+      </div>
+    </div>
+    <div class="hero-line"><strong>Key insight:</strong> AgentGate does not just approve the session. It decides whether the session should still exist.</div>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">The MVP</div>
+    <h2>One normal path. One risky path. Nothing else.</h2>
+    <div class="demo-box">
+      <div class="demo-grid">
+        <div class="card">
+          <div class="big">1. Low-risk request</div>
+          <div class="small">InventorySync Agent requests read access to Inventory API for 15 minutes. Policy approves. Temporary grant issued. Audit written.</div>
+        </div>
+        <div class="card">
+          <div class="big">2. High-risk request</div>
+          <div class="small">VendorReconcile Bot requests write access to Finance ERP. Policy escalates. Reviewer narrows scope or denies. Audit updated.</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-line"><strong>That is enough to prove:</strong> policy control, human-in-the-loop approval, temporary access, and live auditability.</div>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">The value</div>
+    <h2>Why this matters</h2>
+    <div class="metric-grid">
+      <div class="metric"><div class="num">↓</div><div class="lbl">Standing privilege for AI agents</div></div>
+      <div class="metric"><div class="num">↑</div><div class="lbl">Auditability of every access decision</div></div>
+      <div class="metric"><div class="num">↑</div><div class="lbl">Human control on sensitive actions</div></div>
+      <div class="metric"><div class="num">↓</div><div class="lbl">Blast radius when an agent is wrong or compromised</div></div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="eyebrow">The close</div>
+    <div class="close">Most enterprises already know how to govern <strong>humans</strong> and <strong>systems</strong>.<br><br>AgentGate extends that governance model to <strong>AI agents</strong> — with policy-based approval, temporary scoped access, and live revocation when behavior changes.<br><br><span class="accent">That is the missing control plane for agentic enterprise access.</span></div>
+  </section>
+
+  <div class="footer">AgentGate · Concept walkthrough · Left/Right arrow keys to navigate</div>
+</div>
+<div class="nav">
+  <button class="btn" onclick="prevSlide()">Prev</button>
+  <div class="dots" id="dots"></div>
+  <div class="counter" id="counter">1 / 8</div>
+  <button class="btn" onclick="nextSlide()">Next</button>
+</div>
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const dotsEl = document.getElementById('dots');
+  const counter = document.getElementById('counter');
+  let idx = 0;
+  function renderDots() {
+    dotsEl.innerHTML = slides.map((_, i) => `<div class="dot ${i===idx?'active':''}" onclick="go(${i})"></div>`).join('');
+    counter.textContent = `${idx+1} / ${slides.length}`;
+  }
+  function go(i) {
+    slides[idx].classList.remove('active');
+    idx = Math.max(0, Math.min(slides.length-1, i));
+    slides[idx].classList.add('active');
+    renderDots();
+  }
+  function nextSlide(){ go(idx+1); }
+  function prevSlide(){ go(idx-1); }
+  document.addEventListener('keydown', (e)=>{ if(e.key==='ArrowRight' || e.key===' ') nextSlide(); if(e.key==='ArrowLeft') prevSlide();});
+  renderDots();
+</script>
+</body>
+</html>

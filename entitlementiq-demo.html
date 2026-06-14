@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EntitlementIQ — Identity Risk Dashboard</title>
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f4f5f7;
+      color: #172b4d;
+      min-height: 100vh;
+    }
+
+    /* ── Layout ── */
+    .app { display: flex; flex-direction: column; min-height: 100vh; }
+    header {
+      background: #4f46e5;
+      color: white;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      height: 56px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    header .logo { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+    header .subtitle { font-size: 13px; opacity: 0.85; }
+    header .badge {
+      margin-left: auto;
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.4);
+      border-radius: 12px;
+      padding: 3px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    nav {
+      background: white;
+      border-bottom: 1px solid #dfe1e6;
+      display: flex;
+      gap: 0;
+      padding: 0 24px;
+      overflow-x: auto;
+    }
+    nav button {
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      padding: 14px 18px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #5e6c84;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    nav button:hover { color: #172b4d; background: #f4f5f7; }
+    nav button.active { color: #4f46e5; border-bottom-color: #4f46e5; font-weight: 600; }
+
+    main { flex: 1; padding: 24px; max-width: 1200px; margin: 0 auto; width: 100%; }
+
+    /* ── Cards ── */
+    .card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      padding: 20px 24px;
+      margin-bottom: 20px;
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #172b4d;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ── Risk Badges ── */
+    .risk-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+    .risk-HIGH { background: #ffebe6; color: #bf2600; border: 1px solid #ffbdad; }
+    .risk-LOW  { background: #e3fcef; color: #006644; border: 1px solid #abf5d1; }
+    .risk-dot { width: 7px; height: 7px; border-radius: 50%; }
+    .risk-HIGH .risk-dot { background: #bf2600; }
+    .risk-LOW  .risk-dot { background: #006644; }
+
+    /* ── Tables ── */
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th {
+      background: #f4f5f7;
+      text-align: left;
+      padding: 10px 12px;
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #5e6c84;
+      border-bottom: 2px solid #dfe1e6;
+    }
+    td { padding: 11px 12px; border-bottom: 1px solid #f4f5f7; vertical-align: middle; }
+    tr:hover td { background: #fafbfc; }
+    tr:last-child td { border-bottom: none; }
+
+    /* ── API Tester ── */
+    .api-tester { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 16px; }
+    .api-tester label { font-size: 12px; font-weight: 600; color: #5e6c84; display: block; margin-bottom: 4px; }
+    .api-tester input, .api-tester select {
+      border: 1px solid #dfe1e6;
+      border-radius: 4px;
+      padding: 8px 12px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.15s;
+      min-width: 200px;
+    }
+    .api-tester input:focus, .api-tester select:focus { border-color: #4f46e5; }
+    .btn {
+      background: #4f46e5;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 9px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn:hover { background: #a30000; }
+    .btn-secondary {
+      background: white;
+      color: #172b4d;
+      border: 1px solid #dfe1e6;
+    }
+    .btn-secondary:hover { background: #f4f5f7; }
+
+    .response-box {
+      background: #1e1e2e;
+      color: #cdd6f4;
+      border-radius: 6px;
+      padding: 16px;
+      font-family: "SF Mono", "Fira Code", monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      overflow-x: auto;
+      white-space: pre;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .response-box .key   { color: #89b4fa; }
+    .response-box .str   { color: #a6e3a1; }
+    .response-box .bool-true  { color: #f38ba8; font-weight: bold; }
+    .response-box .bool-false { color: #a6e3a1; font-weight: bold; }
+    .response-box .num   { color: #fab387; }
+
+    /* ── Stats Row ── */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 20px; }
+    .stat-card {
+      background: white;
+      border-radius: 8px;
+      padding: 16px 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .stat-card .stat-value { font-size: 32px; font-weight: 700; }
+    .stat-card .stat-label { font-size: 12px; color: #5e6c84; margin-top: 4px; }
+    .stat-card.high .stat-value { color: #bf2600; }
+    .stat-card.low  .stat-value { color: #006644; }
+    .stat-card.total .stat-value { color: #172b4d; }
+
+    /* ── Reasons list ── */
+    .reasons { list-style: none; }
+    .reasons li {
+      padding: 4px 0;
+      font-size: 12px;
+      color: #5e6c84;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+    .reasons li::before { content: "→"; color: #bf2600; flex-shrink: 0; }
+
+    /* ── Tabs ── */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ── Rule table ── */
+    .rule-row-HIGH td { background: #fff8f6; }
+    .rule-row-LOW  td { background: #f6fff9; }
+
+    /* ── Notification preview ── */
+    .notification {
+      border: 1px solid #dfe1e6;
+      border-radius: 6px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .notification.high { border-left: 4px solid #bf2600; }
+    .notification.low  { border-left: 4px solid #006644; }
+    .notification .notif-icon { font-size: 20px; flex-shrink: 0; }
+    .notification .notif-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+    .notification .notif-body  { font-size: 13px; color: #5e6c84; }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      main { padding: 12px; }
+      .api-tester { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <header>
+    <div class="logo">🛡️ EntitlementIQ</div>
+    <div class="subtitle">Identity Access Risk Dashboard — Prototype</div>
+    <div class="badge">PROTOTYPE · Q2 2026</div>
+  </header>
+
+  <!-- Nav -->
+  <nav>
+    <button class="active" onclick="showPage('dashboard')">📊 Dashboard</button>
+    <button onclick="showPage('request-access')">🔐 Request Access</button>
+    <button onclick="showPage('access-reviews')">✅ Access Reviews</button>
+    <button onclick="showPage('my-access')">👤 My Access</button>
+    <button onclick="showPage('api-tester')">⚡ Risk API</button>
+    <button onclick="showPage('risk-rules')">📋 Risk Rules</button>
+    <button onclick="showPage('notifications')">🔔 Notifications</button>
+  </nav>
+
+  <main>
+
+    <!-- ── DASHBOARD ── -->
+    <div id="page-dashboard" class="page active">
+      <div class="card-title" style="font-size:20px; margin-bottom:16px;">Risk Rating Overview</div>
+
+      <div class="stats-row" id="stats-row"></div>
+
+      <div class="card">
+        <div class="card-title">👥 All Users — Risk Summary</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>LAN ID</th>
+              <th>Level</th>
+              <th>Job Code</th>
+              <th>Location</th>
+              <th>Risk</th>
+              <th>Reasons</th>
+            </tr>
+          </thead>
+          <tbody id="users-table-body"></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🗂️ All Entitlements — Risk Summary</div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Regulation</th>
+              <th>Data Class</th>
+              <th>Privileged</th>
+              <th>Environment</th>
+              <th>Permission</th>
+              <th>Risk</th>
+              <th>Rule Applied</th>
+            </tr>
+          </thead>
+          <tbody id="entitlements-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── REQUEST ACCESS ── -->
+    <div id="page-request-access" class="page">
+      <div class="card">
+        <div class="card-title">🔐 Request Access — Risk Display</div>
+        <p style="font-size:13px; color:#5e6c84; margin-bottom:16px;">
+          Per requirements: <em>"Ability to display risk with words High and Low in the UI in Request Access page"</em>
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Entitlement</th>
+              <th>Environment</th>
+              <th>Permission</th>
+              <th>Regulation</th>
+              <th>Risk Level</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="request-access-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── ACCESS REVIEWS ── -->
+    <div id="page-access-reviews" class="page">
+      <div class="card">
+        <div class="card-title">✅ Access Reviews — Risk Display</div>
+        <p style="font-size:13px; color:#5e6c84; margin-bottom:16px;">
+          Per requirements: <em>"Ability to display risk with words High and Low in the UI in Access Reviews"</em><br/>
+          Benefit: <em>"Help Managers make access review decisions"</em>
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Entitlement</th>
+              <th>Risk</th>
+              <th>Last Reviewed</th>
+              <th>Manager Action</th>
+            </tr>
+          </thead>
+          <tbody id="access-reviews-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── MY ACCESS ── -->
+    <div id="page-my-access" class="page">
+      <div class="card">
+        <div class="card-title">👤 My Access — User Risk View</div>
+        <div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap;">
+          <label style="font-size:12px; font-weight:600; color:#5e6c84;">
+            View as user:
+            <select id="my-access-user-select" onchange="renderMyAccess()" style="margin-left:8px; border:1px solid #dfe1e6; border-radius:4px; padding:6px 10px; font-size:13px;">
+            </select>
+          </label>
+        </div>
+        <div id="my-access-user-card" style="margin-bottom:16px;"></div>
+        <table>
+          <thead>
+            <tr>
+              <th>Entitlement</th>
+              <th>Environment</th>
+              <th>Permission</th>
+              <th>Risk</th>
+              <th>Why?</th>
+            </tr>
+          </thead>
+          <tbody id="my-access-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── API TESTER ── -->
+    <div id="page-api-tester" class="page">
+      <div class="card">
+        <div class="card-title">⚡ Risk API — Live Tester</div>
+        <p style="font-size:13px; color:#5e6c84; margin-bottom:16px;">
+          Simulates: <code>GET /api/v1/users/{lanId}/risk</code><br/>
+          <em>"An API that can tell if a user is a risky user or not. It should also be highly performant."</em>
+        </p>
+        <div class="api-tester">
+          <div>
+            <label>Endpoint</label>
+            <select id="api-endpoint">
+              <option value="user-risk">GET /users/{lanId}/risk</option>
+              <option value="user-risk-detail">GET /users/{lanId}/risk/detail</option>
+              <option value="all-users">GET /users/risk</option>
+              <option value="all-entitlements">GET /entitlements/risk</option>
+            </select>
+          </div>
+          <div>
+            <label>LAN ID</label>
+            <input id="api-lanid" type="text" placeholder="e.g. marx0001" value="marx0001" />
+          </div>
+          <button class="btn" onclick="callApi()">▶ Call API</button>
+          <button class="btn btn-secondary" onclick="refreshCache()">🔄 Refresh Cache</button>
+        </div>
+        <div id="api-response" class="response-box">// Response will appear here...</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📖 Available LAN IDs (mock data)</div>
+        <table>
+          <thead><tr><th>LAN ID</th><th>Name</th><th>Level</th><th>Risk</th></tr></thead>
+          <tbody id="api-users-list"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── RISK RULES ── -->
+    <div id="page-risk-rules" class="page">
+      <div class="card">
+        <div class="card-title">📋 Risk Rules Table</div>
+        <p style="font-size:13px; color:#5e6c84; margin-bottom:16px;">
+          Per meeting (04-May-2026): Simplified to <strong>HIGH / LOW only</strong> (Medium removed).<br/>
+          Designed to be flexible — rows can be added, removed, or changed without code changes.
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Rule ID</th>
+              <th>Description</th>
+              <th>Regulation</th>
+              <th>Data Class</th>
+              <th>Privileged</th>
+              <th>Environment</th>
+              <th>Permission</th>
+              <th>Risk</th>
+            </tr>
+          </thead>
+          <tbody id="rules-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── NOTIFICATIONS ── -->
+    <div id="page-notifications" class="page">
+      <div class="card">
+        <div class="card-title">🔔 System Notifications — Risk-Aware</div>
+        <p style="font-size:13px; color:#5e6c84; margin-bottom:16px;">
+          Per requirements: <em>"Ability to include risk in system generated communication"</em><br/>
+          Use Cases 4 & 5: Email notifications prioritized by user risk level.
+        </p>
+        <div id="notifications-list"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script type="module">
+// ─── INLINE DATA (no server needed for prototype) ─────────────────────────────
+
+const RISK_RULES = [
+  { id: "R01", description: "Privileged access in Production",                    conditions: { privileged_access: true, environment: "PROD" },                                              risk: "HIGH" },
+  { id: "R02", description: "SHR (most sensitive) data in Production",            conditions: { data_classification: "SHR", environment: "PROD" },                                          risk: "HIGH" },
+  { id: "R03", description: "PCI, HIPAA, GLBA, or TD regulated in Production",   conditions: { regulation: ["PCI","HIPAA","GLBA","TD"], environment: "PROD" },                             risk: "HIGH" },
+  { id: "R04", description: "SOX/TDSOC1 + PROD + Admin or Write",                conditions: { regulation: ["SOX","TDSOC1"], environment: "PROD", permission: ["ADMIN","WRITE"] },         risk: "HIGH" },
+  { id: "R05", description: "Non-Production environment",                         conditions: { environment: "NON-PROD" },                                                                  risk: "LOW"  },
+  { id: "R06", description: "SOX/TDSOC1 + PROD + Read only",                     conditions: { regulation: ["SOX","TDSOC1"], environment: "PROD", permission: ["READ"] },                  risk: "LOW"  },
+  { id: "R07", description: "No regulation + non-SHR data",                      conditions: { regulation: null, data_classification: ["C","I","P","PUBLIC","INTERNAL"] },                 risk: "LOW"  },
+  { id: "R_DEFAULT", description: "Default fallback",                             conditions: {},                                                                                           risk: "LOW"  },
+];
+
+const ENTITLEMENTS = [
+  { id:"ENT-001", name:"PCI Payment Gateway - Admin",      regulation:"PCI",    data_classification:"C",        privileged_access:false, environment:"PROD",    permission:"ADMIN" },
+  { id:"ENT-002", name:"SOX Financial Reports - Write",    regulation:"SOX",    data_classification:"C",        privileged_access:false, environment:"PROD",    permission:"WRITE" },
+  { id:"ENT-003", name:"SOX Financial Reports - Read",     regulation:"SOX",    data_classification:"C",        privileged_access:false, environment:"PROD",    permission:"READ"  },
+  { id:"ENT-004", name:"GCP Cloud Admin (Privileged)",     regulation:null,     data_classification:"I",        privileged_access:true,  environment:"PROD",    permission:"ADMIN" },
+  { id:"ENT-005", name:"Guest Data - SHR Access",          regulation:null,     data_classification:"SHR",      privileged_access:false, environment:"PROD",    permission:"READ"  },
+  { id:"ENT-006", name:"Dev Environment - Git",            regulation:null,     data_classification:"I",        privileged_access:false, environment:"NON-PROD",permission:"WRITE" },
+  { id:"ENT-007", name:"Internal Wiki - Read",             regulation:null,     data_classification:"INTERNAL", privileged_access:false, environment:"PROD",    permission:"READ"  },
+  { id:"ENT-008", name:"CrowdStrike Security Console",     regulation:null,     data_classification:"C",        privileged_access:true,  environment:"PROD",    permission:"ADMIN" },
+  { id:"ENT-009", name:"HIPAA Health Records - Read",      regulation:"HIPAA",  data_classification:"C",        privileged_access:false, environment:"PROD",    permission:"READ"  },
+  { id:"ENT-010", name:"Store POS System - Read",          regulation:null,     data_classification:"INTERNAL", privileged_access:false, environment:"PROD",    permission:"READ"  },
+];
+
+const USERS = [
+  { id:"U001", lanId:"marx0001", name:"Christy Marx",      level:"L8", jobCode:"PM-SR",       location:"HQ",    entitlementIds:["ENT-001","ENT-004","ENT-007"] },
+  { id:"U002", lanId:"jaeg0002", name:"Carrie Jaeger",     level:"L7", jobCode:"PM-CATALOG",  location:"HQ",    entitlementIds:["ENT-002","ENT-007"] },
+  { id:"U003", lanId:"redd0003", name:"Haritha Reddy",     level:"L5", jobCode:"ENG-SR",      location:"HQ",    entitlementIds:["ENT-006","ENT-007"] },
+  { id:"U004", lanId:"stor0004", name:"Store Associate",   level:"L1", jobCode:"STORE-ASSOC", location:"STORE", entitlementIds:["ENT-010"] },
+  { id:"U005", lanId:"csir0005", name:"CSIRT Analyst",     level:"L6", jobCode:"SEC-ANALYST", location:"HQ",    entitlementIds:["ENT-008","ENT-005","ENT-009"] },
+  { id:"U006", lanId:"devs0006", name:"Junior Developer",  level:"L3", jobCode:"ENG-JR",      location:"HQ",    entitlementIds:["ENT-006","ENT-007","ENT-003"] },
+];
+
+// ─── RISK ENGINE ──────────────────────────────────────────────────────────────
+
+function matchesCondition(ent, conditions) {
+  if (Object.keys(conditions).length === 0) return true;
+  for (const [key, value] of Object.entries(conditions)) {
+    const entVal = ent[key];
+    if (value === null) { if (entVal !== null && entVal !== undefined && entVal !== "") return false; }
+    else if (Array.isArray(value)) { if (!value.includes(entVal)) return false; }
+    else { if (entVal !== value) return false; }
+  }
+  return true;
+}
+
+function calcEntitlementRisk(ent) {
+  for (const rule of RISK_RULES) {
+    if (matchesCondition(ent, rule.conditions)) {
+      return { risk: rule.risk, ruleId: rule.id, ruleDescription: rule.description };
+    }
+  }
+  return { risk: "LOW", ruleId: "R_DEFAULT", ruleDescription: "Default fallback" };
+}
+
+function calcUserRisk(user) {
+  const reasons = [];
+  const userEnts = ENTITLEMENTS.filter(e => user.entitlementIds.includes(e.id));
+  const entRisks = userEnts.map(e => ({ ...e, ...calcEntitlementRisk(e) }));
+
+  const hasHigh = entRisks.some(e => e.risk === "HIGH");
+  if (hasHigh) {
+    const highNames = entRisks.filter(e => e.risk === "HIGH").map(e => e.name);
+    reasons.push(`Has HIGH risk entitlement(s): ${highNames.join(", ")}`);
+  }
+
+  const level = parseInt(user.level?.replace("L","") || "0");
+  if (level >= 7) reasons.push(`User level ${user.level} (L7+) is considered high value`);
+
+  const adminKw = ["ADMIN","SEC","CSIRT","CSOC","BISO"];
+  if (adminKw.some(kw => user.jobCode?.toUpperCase().includes(kw)))
+    reasons.push(`Job code "${user.jobCode}" indicates an admin/security role`);
+
+  const isHigh = hasHigh || level >= 7 || adminKw.some(kw => user.jobCode?.toUpperCase().includes(kw));
+  return { ...user, isHighRisk: isHigh, risk: isHigh ? "HIGH" : "LOW", reasons, entitlementRisks: entRisks };
+}
+
+const allUserRisks = USERS.map(calcUserRisk);
+const allEntRisks  = ENTITLEMENTS.map(e => ({ ...e, ...calcEntitlementRisk(e) }));
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+
+function riskBadge(risk) {
+  return `<span class="risk-badge risk-${risk}"><span class="risk-dot"></span>${risk}</span>`;
+}
+
+function syntaxHighlight(obj) {
+  const json = JSON.stringify(obj, null, 2);
+  return json
+    .replace(/"([^"]+)":/g, '<span class="key">"$1"</span>:')
+    .replace(/: "([^"]*)"/g, ': <span class="str">"$1"</span>')
+    .replace(/: (true)/g, ': <span class="bool-true">$1</span>')
+    .replace(/: (false)/g, ': <span class="bool-false">$1</span>')
+    .replace(/: (\d+\.?\d*)/g, ': <span class="num">$1</span>');
+}
+
+// ─── PAGE: DASHBOARD ──────────────────────────────────────────────────────────
+
+function renderDashboard() {
+  const highUsers = allUserRisks.filter(u => u.risk === "HIGH").length;
+  const lowUsers  = allUserRisks.filter(u => u.risk === "LOW").length;
+  const highEnts  = allEntRisks.filter(e => e.risk === "HIGH").length;
+  const lowEnts   = allEntRisks.filter(e => e.risk === "LOW").length;
+
+  document.getElementById("stats-row").innerHTML = `
+    <div class="stat-card high"><div class="stat-value">${highUsers}</div><div class="stat-label">High Risk Users</div></div>
+    <div class="stat-card low"><div class="stat-value">${lowUsers}</div><div class="stat-label">Low Risk Users</div></div>
+    <div class="stat-card high"><div class="stat-value">${highEnts}</div><div class="stat-label">High Risk Entitlements</div></div>
+    <div class="stat-card low"><div class="stat-value">${lowEnts}</div><div class="stat-label">Low Risk Entitlements</div></div>
+    <div class="stat-card total"><div class="stat-value">${RISK_RULES.length - 1}</div><div class="stat-label">Active Risk Rules</div></div>
+  `;
+
+  document.getElementById("users-table-body").innerHTML = allUserRisks.map(u => `
+    <tr>
+      <td><strong>${u.name}</strong></td>
+      <td><code>${u.lanId}</code></td>
+      <td>${u.level}</td>
+      <td>${u.jobCode}</td>
+      <td>${u.location}</td>
+      <td>${riskBadge(u.risk)}</td>
+      <td><ul class="reasons">${u.reasons.map(r => `<li>${r}</li>`).join("") || "<li style='color:#aaa'>No specific risk factors</li>"}</ul></td>
+    </tr>
+  `).join("");
+
+  document.getElementById("entitlements-table-body").innerHTML = allEntRisks.map(e => `
+    <tr>
+      <td><code>${e.id}</code></td>
+      <td>${e.name}</td>
+      <td>${e.regulation || "—"}</td>
+      <td>${e.data_classification}</td>
+      <td>${e.privileged_access ? "✅ Yes" : "No"}</td>
+      <td><span style="font-size:11px; padding:2px 7px; border-radius:10px; background:${e.environment==="PROD"?"#fff0f0":"#f0fff4"}; color:${e.environment==="PROD"?"#bf2600":"#006644"}; font-weight:600;">${e.environment}</span></td>
+      <td>${e.permission}</td>
+      <td>${riskBadge(e.risk)}</td>
+      <td style="font-size:11px; color:#5e6c84;">${e.ruleId}: ${e.ruleDescription}</td>
+    </tr>
+  `).join("");
+}
+
+// ─── PAGE: REQUEST ACCESS ─────────────────────────────────────────────────────
+
+function renderRequestAccess() {
+  document.getElementById("request-access-body").innerHTML = allEntRisks.map(e => `
+    <tr>
+      <td><strong>${e.name}</strong></td>
+      <td>${e.environment}</td>
+      <td>${e.permission}</td>
+      <td>${e.regulation || "None"}</td>
+      <td>${riskBadge(e.risk)}</td>
+      <td><button class="btn" style="padding:5px 12px; font-size:12px;" onclick="alert('Request submitted for: ${e.name}')">Request</button></td>
+    </tr>
+  `).join("");
+}
+
+// ─── PAGE: ACCESS REVIEWS ─────────────────────────────────────────────────────
+
+function renderAccessReviews() {
+  const rows = [];
+  allUserRisks.forEach(u => {
+    u.entitlementRisks.forEach(e => {
+      rows.push({ user: u, ent: e });
+    });
+  });
+  rows.sort((a, b) => (a.ent.risk === "HIGH" ? -1 : 1));
+
+  document.getElementById("access-reviews-body").innerHTML = rows.map(({ user, ent }) => `
+    <tr>
+      <td><strong>${user.name}</strong><br/><span style="font-size:11px;color:#5e6c84;">${user.lanId}</span></td>
+      <td>${ent.name}</td>
+      <td>${riskBadge(ent.risk)}</td>
+      <td style="color:#5e6c84; font-size:12px;">Jan 15, 2026</td>
+      <td>
+        <button class="btn" style="padding:4px 10px; font-size:12px; margin-right:6px;" onclick="alert('Access approved')">✓ Approve</button>
+        <button class="btn btn-secondary" style="padding:4px 10px; font-size:12px;" onclick="alert('Access revoked')">✗ Revoke</button>
+      </td>
+    </tr>
+  `).join("");
+}
+
+// ─── PAGE: MY ACCESS ─────────────────────────────────────────────────────────
+
+function renderMyAccess() {
+  const sel = document.getElementById("my-access-user-select");
+  const lanId = sel.value;
+  const user = allUserRisks.find(u => u.lanId === lanId);
+  if (!user) return;
+
+  document.getElementById("my-access-user-card").innerHTML = `
+    <div style="display:flex; align-items:center; gap:16px; padding:16px; background:${user.risk==="HIGH"?"#fff8f6":"#f6fff9"}; border-radius:8px; border:1px solid ${user.risk==="HIGH"?"#ffbdad":"#abf5d1"};">
+      <div style="font-size:36px;">${user.risk==="HIGH"?"⚠️":"✅"}</div>
+      <div>
+        <div style="font-size:16px; font-weight:700;">${user.name} <span style="font-size:12px; color:#5e6c84;">(${user.lanId})</span></div>
+        <div style="margin:4px 0;">${riskBadge(user.risk)} &nbsp; Level: <strong>${user.level}</strong> &nbsp; Job: <strong>${user.jobCode}</strong></div>
+        ${user.reasons.length ? `<ul class="reasons" style="margin-top:6px;">${user.reasons.map(r=>`<li>${r}</li>`).join("")}</ul>` : ""}
+      </div>
+    </div>
+  `;
+
+  document.getElementById("my-access-body").innerHTML = user.entitlementRisks.map(e => `
+    <tr>
+      <td><strong>${e.name}</strong></td>
+      <td>${e.environment}</td>
+      <td>${e.permission}</td>
+      <td>${riskBadge(e.risk)}</td>
+      <td style="font-size:11px; color:#5e6c84;">${e.ruleDescription}</td>
+    </tr>
+  `).join("");
+}
+
+function initMyAccess() {
+  const sel = document.getElementById("my-access-user-select");
+  sel.innerHTML = USERS.map(u => `<option value="${u.lanId}">${u.name} (${u.lanId})</option>`).join("");
+  renderMyAccess();
+}
+
+// ─── PAGE: API TESTER ─────────────────────────────────────────────────────────
+
+window.callApi = function() {
+  const endpoint = document.getElementById("api-endpoint").value;
+  const lanId    = document.getElementById("api-lanid").value.trim();
+  const start    = performance.now();
+
+  let result;
+  if (endpoint === "user-risk") {
+    const user = allUserRisks.find(u => u.lanId.toLowerCase() === lanId.toLowerCase());
+    result = user
+      ? { success:true, lanId:user.lanId, name:user.name, isHighRisk:user.isHighRisk, risk:user.risk, reasons:user.reasons, responseTimeMs:+(performance.now()-start).toFixed(3) }
+      : { success:false, error:`User '${lanId}' not found`, responseTimeMs:+(performance.now()-start).toFixed(3) };
+  } else if (endpoint === "user-risk-detail") {
+    const user = allUserRisks.find(u => u.lanId.toLowerCase() === lanId.toLowerCase());
+    result = user
+      ? { success:true, ...user, responseTimeMs:+(performance.now()-start).toFixed(3) }
+      : { success:false, error:`User '${lanId}' not found`, responseTimeMs:+(performance.now()-start).toFixed(3) };
+  } else if (endpoint === "all-users") {
+    result = { success:true, count:allUserRisks.length, data:allUserRisks.map(u=>({lanId:u.lanId,name:u.name,risk:u.risk,isHighRisk:u.isHighRisk})), responseTimeMs:+(performance.now()-start).toFixed(3) };
+  } else if (endpoint === "all-entitlements") {
+    result = { success:true, count:allEntRisks.length, data:allEntRisks.map(e=>({id:e.id,name:e.name,risk:e.risk,ruleId:e.ruleId})), responseTimeMs:+(performance.now()-start).toFixed(3) };
+  }
+
+  document.getElementById("api-response").innerHTML = syntaxHighlight(result);
+};
+
+window.refreshCache = function() {
+  const result = { success:true, message:"Risk cache refreshed", cachedUsers:USERS.length, timestamp:new Date().toISOString() };
+  document.getElementById("api-response").innerHTML = syntaxHighlight(result);
+};
+
+function renderApiUsersList() {
+  document.getElementById("api-users-list").innerHTML = allUserRisks.map(u => `
+    <tr>
+      <td><code style="cursor:pointer; color:#4f46e5;" onclick="document.getElementById('api-lanid').value='${u.lanId}'">${u.lanId}</code></td>
+      <td>${u.name}</td>
+      <td>${u.level}</td>
+      <td>${riskBadge(u.risk)}</td>
+    </tr>
+  `).join("");
+}
+
+// ─── PAGE: RISK RULES ─────────────────────────────────────────────────────────
+
+function renderRiskRules() {
+  document.getElementById("rules-table-body").innerHTML = RISK_RULES.map(r => `
+    <tr class="rule-row-${r.risk}">
+      <td><code>${r.id}</code></td>
+      <td>${r.description}</td>
+      <td>${Array.isArray(r.conditions.regulation) ? r.conditions.regulation.join(", ") : (r.conditions.regulation === null ? "None" : r.conditions.regulation || "Any")}</td>
+      <td>${Array.isArray(r.conditions.data_classification) ? r.conditions.data_classification.join(", ") : (r.conditions.data_classification || "Any")}</td>
+      <td>${r.conditions.privileged_access === true ? "✅ Yes" : r.conditions.privileged_access === false ? "No" : "Any"}</td>
+      <td>${r.conditions.environment || "Any"}</td>
+      <td>${Array.isArray(r.conditions.permission) ? r.conditions.permission.join(", ") : (r.conditions.permission || "Any")}</td>
+      <td>${riskBadge(r.risk)}</td>
+    </tr>
+  `).join("");
+}
+
+// ─── PAGE: NOTIFICATIONS ──────────────────────────────────────────────────────
+
+function renderNotifications() {
+  const highUsers = allUserRisks.filter(u => u.risk === "HIGH");
+  const lowUsers  = allUserRisks.filter(u => u.risk === "LOW");
+
+  const notifs = [
+    ...highUsers.map(u => ({
+      type: "high",
+      icon: "🚨",
+      title: `[HIGH RISK] OTP Alert — ${u.name} (${u.lanId})`,
+      body: `This user is classified as HIGH RISK. Reasons: ${u.reasons.join("; ")}. Prioritize this alert for immediate review.`,
+    })),
+    ...lowUsers.map(u => ({
+      type: "low",
+      icon: "ℹ️",
+      title: `[LOW RISK] Login Notification — ${u.name} (${u.lanId})`,
+      body: `Standard notification. User is LOW RISK. No immediate action required.`,
+    })),
+  ];
+
+  document.getElementById("notifications-list").innerHTML = notifs.map(n => `
+    <div class="notification ${n.type}">
+      <div class="notif-icon">${n.icon}</div>
+      <div>
+        <div class="notif-title">${n.title}</div>
+        <div class="notif-body">${n.body}</div>
+      </div>
+    </div>
+  `).join("");
+}
+
+// ─── NAV ──────────────────────────────────────────────────────────────────────
+
+window.showPage = function(page) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+  document.getElementById(`page-${page}`).classList.add("active");
+  event.target.classList.add("active");
+};
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+
+renderDashboard();
+renderRequestAccess();
+renderAccessReviews();
+initMyAccess();
+renderApiUsersList();
+renderRiskRules();
+renderNotifications();
+</script>
+</body>
+</html>
