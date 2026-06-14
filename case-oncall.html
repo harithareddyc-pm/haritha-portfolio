@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI On-Call Triage Agent — Case Study</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site-nav">
+  <div class="wrap">
+    <div class="brand">harithareddy<span>.dev</span></div>
+    <nav>
+      <a href="index.html">Work</a>
+      <a href="about.html">About</a>
+      <a href="case-oncall.html" class="current">Case studies</a>
+      <a href="mailto:harithareddy.c@gmail.com" class="cta">Get in touch</a>
+    </nav>
+  </div>
+</header>
+
+<section class="cs-header">
+  <div class="wrap">
+    <a href="index.html" class="back">← All work</a>
+    <div class="eyebrow">AI · Incident Response · Human-in-the-loop</div>
+    <h1>AI On-Call Triage Agent</h1>
+    <p class="lede">
+      A triage agent for production incidents that pairs deterministic severity rules with LLM reasoning —
+      and is architected so the model can never quietly downgrade a severity the rules have already flagged.
+    </p>
+    <div class="cs-meta-row">
+      <div class="cs-meta-item"><div class="k">Stack</div><div class="v">FastAPI · Python · Claude (Anthropic API)</div></div>
+      <div class="cs-meta-item"><div class="k">Role</div><div class="v">Product design & architecture</div></div>
+      <div class="cs-meta-item"><div class="k">Status</div><div class="v">Working prototype</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+
+    <div class="cs-block">
+      <h2>The problem</h2>
+      <p>
+        On-call rotations absorb a steady stream of alerts, and a large share of them follow recognizable patterns —
+        a familiar severity, a familiar category, a familiar set of next steps. Based on real alert pattern data from
+        an enterprise on-call environment, an estimated 60–70% of alerts were preventable or followed a pattern that
+        could have been triaged automatically before reaching a human.
+      </p>
+      <p>
+        The product question wasn't "can an LLM triage an incident" — it clearly can. The harder question was:
+        how do you let an LLM help with triage without letting it become the thing that decides whether a SEV1
+        outage gets treated as a SEV1?
+      </p>
+    </div>
+
+    <div class="cs-block">
+      <h2>The approach: rules constrain the model, not the other way around</h2>
+      <p>
+        The triage service runs a deterministic pre-triage pass first — keyword and pattern-based detection of
+        severity and category from the incident title, description, logs, and recent changes. This pass runs
+        <em>before</em> the LLM is called, and its output is treated as ground truth for the things it's confident about.
+      </p>
+      <p>
+        The LLM (Claude) is then given the incident plus the deterministic pre-triage result, and asked to produce
+        a structured assessment — executive summary, immediate actions, recommended owner, escalation targets — as
+        strict JSON. After the model responds, the service re-applies the deterministic rules as a safety check:
+        if the rules detected SEV1, the final result is forced to SEV1 regardless of what the model returned, and
+        any escalation targets the rules require are merged in even if the model omitted them.
+      </p>
+      <div class="code-block"><span class="c-cmt"># Severity override — rules win, the model can't downgrade a SEV1</span>
+<span class="c-key">if</span> p[<span class="c-str">"severity"</span>] == <span class="c-str">"SEV1"</span> <span class="c-key">and</span> parsed.get(<span class="c-str">"severity"</span>) <span class="c-key">not in</span> [<span class="c-str">"SEV1"</span>, <span class="c-str">"UNKNOWN"</span>]:
+    parsed[<span class="c-str">"severity"</span>] = <span class="c-str">"SEV1"</span>
+
+<span class="c-cmt"># Escalation targets are merged, never replaced</span>
+<span class="c-key">if</span> p[<span class="c-str">"escalation_needed"</span>]:
+    parsed[<span class="c-str">"escalation_needed"</span>] = <span class="c-key">True</span>
+    parsed[<span class="c-str">"escalation_targets"</span>] = sorted(set(
+        parsed.get(<span class="c-str">"escalation_targets"</span>, []) + p[<span class="c-str">"escalation_targets"</span>]
+    ))</div>
+      <p>
+        The API also exposes a <code>/triage/mock</code> endpoint that returns deterministic-only results with no model
+        call — useful for testing the rules layer in isolation, and for environments where calling out to an LLM isn't
+        appropriate for a given incident category.
+      </p>
+    </div>
+
+    <div class="cs-block">
+      <h2>The experience: an AI teammate that asks before it acts</h2>
+      <p>
+        To make this tangible beyond an API contract, the workflow is also modeled as an incident-response assistant
+        operating inside a team chat — investigating an alert, posting a structured diagnosis, surfacing a similar
+        past incident, and recommending a mitigation. Critically, the recommended action is <strong>not executed
+        automatically</strong> — it sits behind an explicit human approval step before anything changes in production.
+      </p>
+      <div class="demo-frame">
+        <div class="frame-bar"><div class="dots"><span></span><span></span><span></span></div>accesspilot-demo.html — interactive, click through the alert thread</div>
+        <iframe src="accesspilot_slack_prototype.html" title="AccessPilot incident triage demo" loading="lazy"></iframe>
+      </div>
+      <p style="margin-top:14px; font-size:13px; color:var(--text-faint);">
+        Click into the alert thread to step through the investigation: diagnosis → historical incident match →
+        evidence summary → recommended action → approval gate → mitigation → recovery.
+      </p>
+    </div>
+
+    <div class="cs-block">
+      <h2>Why the architecture matters</h2>
+      <p>
+        This is the part of the project that's most relevant to a product role focused on AI agent governance:
+        the same pattern — deterministic guardrails wrapping a probabilistic model, with a human approval gate before
+        any state-changing action — is exactly the control structure that AI agents need when they're given access
+        to production systems, IAM platforms, or customer data. An on-call triage agent is a low-stakes place to
+        prove this pattern works before applying it to identity and access decisions.
+      </p>
+    </div>
+
+    <div class="cs-block">
+      <h2>Outcome</h2>
+      <div class="outcome-grid">
+        <div class="outcome-card">
+          <div class="num">60–70%</div>
+          <div class="lbl">of alerts in the source data followed patterns that could be triaged automatically</div>
+        </div>
+        <div class="outcome-card">
+          <div class="num">2 layers</div>
+          <div class="lbl">deterministic rules + LLM reasoning, with rules as the final authority on severity</div>
+        </div>
+        <div class="outcome-card">
+          <div class="num">1 gate</div>
+          <div class="lbl">every state-changing recommendation requires explicit human approval before execution</div>
+        </div>
+      </div>
+      <div class="disclosure">
+        Note: service and tool names in the demo (Sentinel, PagerLine, Sentra Ops, auth-gateway-svc) are illustrative
+        and not tied to any employer's internal systems. The 60–70% preventable-alert figure reflects real alert
+        pattern analysis; the triage service and demo are independently built prototypes.
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="wrap cs-nav-footer">
+  <a href="index.html" class="btn">← Back to all work</a>
+  <a href="case-entitlementiq.html" class="btn primary">Next: EntitlementIQ →</a>
+</div>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="copy">Haritha Reddy · Bengaluru, India</div>
+    <div class="links">
+      <a href="https://linkedin.com/in/harithareddychavva" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="mailto:harithareddy.c@gmail.com">Email</a>
+      <a href="about.html">Resume</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
