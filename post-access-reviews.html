@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Access reviews are designed for compliance. They're not designed for reviewers. — Haritha Reddy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .article-wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 28px;
+    position: relative;
+    z-index: 1;
+  }
+  .article-header {
+    padding: 56px 0 40px;
+    border-bottom: 1px solid var(--border);
+  }
+  .article-body {
+    padding: 48px 0 64px;
+  }
+  .article-body p {
+    font-size: 17px;
+    line-height: 1.8;
+    color: var(--text-dim);
+    margin: 0 0 24px;
+  }
+  .article-body p.lead {
+    font-size: 19px;
+    color: var(--text);
+    line-height: 1.75;
+    margin-bottom: 32px;
+  }
+  .article-body h2 {
+    font-size: 22px;
+    margin: 40px 0 16px;
+    color: #f5f7fb;
+  }
+  .article-body h3 {
+    font-size: 17px;
+    font-family: var(--font-mono);
+    color: var(--accent-bright);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 32px 0 12px;
+  }
+  .article-body ul {
+    margin: 0 0 24px;
+    padding-left: 22px;
+    color: var(--text-dim);
+    font-size: 17px;
+    line-height: 1.8;
+  }
+  .article-body li { margin-bottom: 8px; }
+  .article-body strong { color: var(--text); font-weight: 600; }
+  .pullquote {
+    border-left: 3px solid var(--accent);
+    padding: 16px 24px;
+    margin: 32px 0;
+    background: rgba(99, 102, 241, 0.06);
+    border-radius: 0 8px 8px 0;
+    font-size: 19px;
+    line-height: 1.65;
+    color: var(--text);
+    font-style: italic;
+  }
+  .article-footer {
+    padding: 32px 0 48px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .author-line {
+    font-size: 14px;
+    color: var(--text-dim);
+  }
+  .author-line strong { color: var(--text); }
+</style>
+</head>
+<body>
+
+<header class="site-nav">
+  <div class="wrap">
+    <div class="brand">harithareddy<span>.dev</span></div>
+    <nav>
+      <a href="about.html">About</a>
+      <a href="index.html">Work</a>
+      <a href="case-oncall.html">Case studies</a>
+      <a href="blog.html" class="current">Writing</a>
+      <a href="mailto:harithareddy.c@gmail.com" class="cta">Get in touch</a>
+    </nav>
+  </div>
+</header>
+
+<div class="article-header">
+  <div class="article-wrap">
+    <a href="blog.html" style="font-family:var(--font-mono); font-size:13px; color:var(--text-dim); display:inline-block; margin-bottom:24px;">← All writing</a>
+    <div class="eyebrow">Access Governance · IGA</div>
+    <h1 style="font-size:38px; line-height:1.15; max-width:620px; margin-top:16px;">
+      Access reviews are designed for compliance.<br>They're not designed for reviewers.
+    </h1>
+    <div style="margin-top:24px; font-family:var(--font-mono); font-size:13px; color:var(--text-faint);">
+      Haritha Reddy · June 2026 · 5 min read
+    </div>
+  </div>
+</div>
+
+<div class="article-body">
+  <div class="article-wrap">
+
+    <p class="lead">
+      Every access review process I've seen looks clean on paper. Send the review. Reviewer validates
+      access. Approve or revoke. Capture evidence. Close the campaign. The compliance box gets checked.
+      But the actual decision quality — whether access that shouldn't exist gets removed — is a
+      different question entirely.
+    </p>
+
+    <p>
+      After owning an IAM platform covering 50,000+ users and 200+ enterprise applications, the
+      pattern I kept seeing wasn't malicious rubber-stamping. It was something more mundane and
+      harder to fix: reviewers approving access they didn't fully understand, because the alternative —
+      revoking access without enough context — felt more risky than leaving it in place.
+    </p>
+
+    <h2>The approval bias problem</h2>
+
+    <p>
+      When a reviewer opens an access certification and sees a list of role names, group memberships,
+      and entitlement strings — many of which are technical identifiers that only make sense to the
+      IAM team or the engineering team that built them — their options are limited.
+    </p>
+
+    <p>
+      They can approve everything, which takes two minutes and carries a low perceived risk of causing
+      an incident. They can revoke something, which takes judgment, context they may not have, and
+      carries a real risk of breaking something for a colleague who then escalates to their manager.
+      Or they can ask someone in IAM or engineering what an entitlement actually does — which takes
+      time they don't have during a quarterly review window.
+    </p>
+
+    <div class="pullquote">
+      Approval is not the path of least resistance because reviewers are lazy. It's the path of
+      least resistance because the process gives them insufficient context to confidently do anything else.
+    </div>
+
+    <p>
+      The result is access certifications that generate compliance evidence without meaningfully
+      reducing access risk. The campaign completed. The evidence exists. The rubber stamp problem
+      remains.
+    </p>
+
+    <h2>Why this is a product problem, not a people problem</h2>
+
+    <p>
+      It's tempting to frame this as a training problem or an accountability problem. If reviewers
+      understood the entitlements better, or if there were consequences for rubber-stamping, the
+      quality would improve.
+    </p>
+
+    <p>
+      That framing misses the structural issue. At enterprise scale — thousands of reviewers,
+      hundreds of thousands of access relationships, quarterly cadences — you cannot train your
+      way to good decision quality. The reviewers are often managers or application owners with
+      full-time jobs that are not access governance. Expecting them to become part-time IAM
+      analysts every quarter is not a sustainable model.
+    </p>
+
+    <p>
+      The product question is: how do we design the review experience so that a non-specialist
+      reviewer can make a confident, accurate decision in the time they realistically have?
+    </p>
+
+    <p>
+      That's a different problem than "how do we enforce that they review carefully." Enforcement
+      without usability just increases friction and resentment. It doesn't improve decision quality.
+    </p>
+
+    <h2>What reviewers actually need</h2>
+
+    <p>
+      From watching how access reviews get done in practice, the context that most changes reviewer
+      behavior falls into a few categories:
+    </p>
+
+    <ul>
+      <li><strong>Is this access being used?</strong> Usage data is the single most actionable signal. An entitlement that hasn't been exercised in 90 days is a much easier revocation decision than one with no usage information at all.</li>
+      <li><strong>Is this access sensitive?</strong> A reviewer making a decision about access to a general productivity tool should be making a different kind of decision than one reviewing access to financial systems or customer data. Sensitivity context changes the appropriate level of scrutiny.</li>
+      <li><strong>Is this normal for this role?</strong> Peer comparison — "3% of people with this job title have this access" — gives reviewers a baseline. Outlier access is easier to question when the outlier nature is visible.</li>
+      <li><strong>What changed since the last review?</strong> Static lists of all access are harder to process than delta views that highlight what's new or changed since the previous certification.</li>
+      <li><strong>What breaks if we remove it?</strong> Dependency context — even a simple "this access is required for application X" — dramatically reduces the perceived risk of revocation decisions.</li>
+    </ul>
+
+    <p>
+      None of this information is exotic. Most mature IAM platforms have access to most of it.
+      The gap is in surfacing it at the moment of the review decision, in a format that a
+      non-specialist reviewer can act on quickly.
+    </p>
+
+    <h2>The goal is a confident decision, not just a completed review</h2>
+
+    <p>
+      This is the reframe that I think matters most for anyone building or improving access review
+      tooling: the outcome we're optimising for is not campaign completion rate. It's not even
+      revocation rate, which can be gamed by revoking low-risk access that nobody uses anyway.
+    </p>
+
+    <p>
+      The outcome is confident, accurate decisions — reviewers who can look at an access item,
+      understand what it is, understand the risk of leaving it in place versus removing it, and
+      make a call they'd stand behind if asked to explain it.
+    </p>
+
+    <div class="pullquote">
+      A completed review that produces no real access reduction is compliance theater.
+      The goal is not the evidence. The goal is the outcome the evidence is supposed to represent.
+    </div>
+
+    <p>
+      Getting there requires treating the reviewer as the user — designing the review experience
+      around their constraints, their context, and their actual decision-making process — rather
+      than designing it around the audit requirement and expecting reviewers to adapt to it.
+    </p>
+
+    <h2>Where AI changes this</h2>
+
+    <p>
+      The context problem in access reviews is exactly where AI-assisted governance has real
+      near-term value. Not AI making revocation decisions autonomously — that's the wrong place
+      to remove the human — but AI synthesising the usage data, peer comparison, sensitivity
+      signals, and dependency context into a recommendation that a reviewer can accept, modify,
+      or override with one click.
+    </p>
+
+    <p>
+      The reviewer stays accountable for the decision. The AI does the work of assembling the
+      context they need to make it well. That's a meaningful improvement over the current state,
+      where the context exists somewhere in the system but never reaches the reviewer at the moment
+      they need it.
+    </p>
+
+    <p>
+      Access reviews won't be fixed by making them more frequent, more mandatory, or more
+      consequential to ignore. They'll be fixed by making it easier to make a good decision than
+      to make a fast one. That's a product problem. And it has a product solution.
+    </p>
+
+  </div>
+</div>
+
+<div class="article-wrap">
+  <div class="article-footer">
+    <div class="author-line">
+      Written by <strong>Haritha Reddy</strong> · Senior PM, Identity & Access Management ·
+      <a href="https://linkedin.com/in/harithareddychavva" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+      <a href="post-nhi.html" class="btn">← Previous</a>
+      <a href="post-ai-agents.html" class="btn primary">Next article →</a>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="copy">Haritha Reddy · Bengaluru, India</div>
+    <div class="links">
+      <a href="https://linkedin.com/in/harithareddychavva" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="mailto:harithareddy.c@gmail.com">Email</a>
+      <a href="blog.html">Writing</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Writing — Haritha Reddy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .post-list { display: flex; flex-direction: column; gap: 0; }
+  .post-item {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 28px;
+    padding: 32px 0;
+    border-bottom: 1px solid var(--border);
+    align-items: start;
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.15s;
+  }
+  .post-item:last-child { border-bottom: none; }
+  .post-item:hover { text-decoration: none; }
+  .post-item:hover .post-title { color: var(--accent-bright); }
+  .post-date {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-faint);
+    padding-top: 4px;
+  }
+  .post-tag {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent-bright);
+    margin-bottom: 8px;
+  }
+  .post-title {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+    margin-bottom: 10px;
+    transition: color 0.15s;
+  }
+  .post-lede {
+    font-size: 15px;
+    color: var(--text-dim);
+    line-height: 1.65;
+    max-width: 640px;
+  }
+  .post-read {
+    margin-top: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent-bright);
+  }
+  @media (max-width: 640px) {
+    .post-item { grid-template-columns: 1fr; gap: 6px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-nav">
+  <div class="wrap">
+    <div class="brand">harithareddy<span>.dev</span></div>
+    <nav>
+      <a href="about.html">About</a>
+      <a href="index.html">Work</a>
+      <a href="case-oncall.html">Case studies</a>
+      <a href="blog.html" class="current">Writing</a>
+      <a href="mailto:harithareddy.c@gmail.com" class="cta">Get in touch</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero" style="padding-bottom: 40px;">
+  <div class="wrap">
+    <div class="eyebrow">Writing</div>
+    <h1>POV on identity, access governance, and what comes next.</h1>
+    <p class="lede">
+      Thoughts from 8+ years of owning IAM product strategy — on the problems that don't show up
+      in vendor documentation and the questions that don't have clean answers yet.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="post-list">
+
+      <a href="post-nhi.html" class="post-item">
+        <div class="post-date">Jun 2026</div>
+        <div>
+          <div class="post-tag">NHI · Governance</div>
+          <div class="post-title">We're governing the credential. We should be governing the behavior.</div>
+          <p class="post-lede">
+            Non-human identities don't join, move, or leave. They get created for a purpose, become critical,
+            and outlive everyone's expectations. The real problem isn't credential rotation — it's that nobody
+            owns what the identity actually does.
+          </p>
+          <div class="post-read">Read article →</div>
+        </div>
+      </a>
+
+      <a href="post-access-reviews.html" class="post-item">
+        <div class="post-date">Jun 2026</div>
+        <div>
+          <div class="post-tag">Access Governance · IGA</div>
+          <div class="post-title">Access reviews are designed for compliance. They're not designed for reviewers.</div>
+          <p class="post-lede">
+            On paper, the process is clean. In practice, reviewers face long lists of entitlements they
+            don't fully understand — and when context is missing, approval is the path of least resistance.
+            That's a product problem, not a people problem.
+          </p>
+          <div class="post-read">Read article →</div>
+        </div>
+      </a>
+
+      <a href="post-ai-agents.html" class="post-item">
+        <div class="post-date">Jun 2026</div>
+        <div>
+          <div class="post-tag">AI Agents · Identity</div>
+          <div class="post-title">AI agents aren't apps. IAM needs a third identity class.</div>
+          <p class="post-lede">
+            Most teams are governing AI agents like service accounts. But an agent can take action based
+            on context — across tools, data, and workflows. The IAM question changes from
+            "what access does this account have?" to "who gave the agent authority, and what should require approval?"
+          </p>
+          <div class="post-read">Read article →</div>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="copy">Haritha Reddy · Bengaluru, India</div>
+    <div class="links">
+      <a href="https://linkedin.com/in/harithareddychavva" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="mailto:harithareddy.c@gmail.com">Email</a>
+      <a href="about.html">About</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

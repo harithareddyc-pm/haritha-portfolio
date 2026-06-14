@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI agents aren't apps. IAM needs a third identity class. — Haritha Reddy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .article-wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 28px;
+    position: relative;
+    z-index: 1;
+  }
+  .article-header {
+    padding: 56px 0 40px;
+    border-bottom: 1px solid var(--border);
+  }
+  .article-body {
+    padding: 48px 0 64px;
+  }
+  .article-body p {
+    font-size: 17px;
+    line-height: 1.8;
+    color: var(--text-dim);
+    margin: 0 0 24px;
+  }
+  .article-body p.lead {
+    font-size: 19px;
+    color: var(--text);
+    line-height: 1.75;
+    margin-bottom: 32px;
+  }
+  .article-body h2 {
+    font-size: 22px;
+    margin: 40px 0 16px;
+    color: #f5f7fb;
+  }
+  .article-body ul {
+    margin: 0 0 24px;
+    padding-left: 22px;
+    color: var(--text-dim);
+    font-size: 17px;
+    line-height: 1.8;
+  }
+  .article-body li { margin-bottom: 10px; }
+  .article-body strong { color: var(--text); font-weight: 600; }
+  .pullquote {
+    border-left: 3px solid var(--accent);
+    padding: 16px 24px;
+    margin: 32px 0;
+    background: rgba(99, 102, 241, 0.06);
+    border-radius: 0 8px 8px 0;
+    font-size: 19px;
+    line-height: 1.65;
+    color: var(--text);
+    font-style: italic;
+  }
+  .compare-block {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 28px 0;
+  }
+  .compare-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    background: var(--panel);
+  }
+  .compare-card h4 {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-faint);
+    margin: 0 0 12px;
+  }
+  .compare-card p {
+    font-size: 15px !important;
+    margin: 0 !important;
+    line-height: 1.6 !important;
+  }
+  .compare-card.highlight {
+    border-color: var(--accent);
+    background: rgba(99,102,241,0.06);
+  }
+  .compare-card.highlight h4 { color: var(--accent-bright); }
+  .article-footer {
+    padding: 32px 0 48px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .author-line {
+    font-size: 14px;
+    color: var(--text-dim);
+  }
+  .author-line strong { color: var(--text); }
+  @media (max-width: 600px) {
+    .compare-block { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-nav">
+  <div class="wrap">
+    <div class="brand">harithareddy<span>.dev</span></div>
+    <nav>
+      <a href="about.html">About</a>
+      <a href="index.html">Work</a>
+      <a href="case-oncall.html">Case studies</a>
+      <a href="blog.html" class="current">Writing</a>
+      <a href="mailto:harithareddy.c@gmail.com" class="cta">Get in touch</a>
+    </nav>
+  </div>
+</header>
+
+<div class="article-header">
+  <div class="article-wrap">
+    <a href="blog.html" style="font-family:var(--font-mono); font-size:13px; color:var(--text-dim); display:inline-block; margin-bottom:24px;">← All writing</a>
+    <div class="eyebrow">AI Agents · Identity</div>
+    <h1 style="font-size:38px; line-height:1.15; max-width:620px; margin-top:16px;">
+      AI agents aren't apps.<br>IAM needs a third identity class.
+    </h1>
+    <div style="margin-top:24px; font-family:var(--font-mono); font-size:13px; color:var(--text-faint);">
+      Haritha Reddy · June 2026 · 6 min read
+    </div>
+  </div>
+</div>
+
+<div class="article-body">
+  <div class="article-wrap">
+
+    <p class="lead">
+      The default response when an AI agent needs enterprise access is to give it a service account.
+      It's the closest familiar category. It has an identity, it has credentials, it can be scoped
+      to specific systems. The box gets checked. The agent gets access. The governance question
+      gets deferred.
+    </p>
+
+    <p>
+      I think this is the wrong model — and the longer enterprises run with it, the harder it
+      will be to correct when something goes wrong.
+    </p>
+
+    <h2>Why agents are different</h2>
+
+    <p>
+      A traditional service account represents a specific, bounded function. It authenticates,
+      it performs a defined set of operations, and its behavior is largely deterministic. The same
+      API call in, the same result out. Governing it means governing the credential and the
+      permissions attached to it.
+    </p>
+
+    <p>
+      An AI agent is fundamentally different because it acts based on context, not a fixed script.
+      A single agent might read from an inventory system, query a customer database, call a vendor
+      API, write a summary to a document, and trigger a workflow — all in the course of completing
+      one task. Its behavior varies based on what it encounters. Its scope at runtime is determined
+      by what the task requires, not what was anticipated at provisioning time.
+    </p>
+
+    <div class="pullquote">
+      The governance question for a service account is: what does this account have access to?
+      The governance question for an AI agent is: what is this agent allowed to decide, and who
+      gave it that authority?
+    </div>
+
+    <p>
+      Those are genuinely different questions. They require different governance models.
+    </p>
+
+    <h2>The two existing models and why they don't fit</h2>
+
+    <div class="compare-block">
+      <div class="compare-card">
+        <h4>Human identity governance</h4>
+        <p>Access request → approval workflow → role assignment → periodic recertification.
+        Designed around stable roles and predictable access patterns. Works because humans
+        have managers, job titles, and defined responsibilities that map to access needs.</p>
+      </div>
+      <div class="compare-card">
+        <h4>Service identity governance</h4>
+        <p>Credential provisioning → secret rotation → access scoping → expiry enforcement.
+        Designed around bounded, deterministic functions. Works because service behavior
+        is predictable and the blast radius of a misconfiguration is relatively contained.</p>
+      </div>
+    </div>
+
+    <div class="compare-block">
+      <div class="compare-card highlight">
+        <h4>AI agent identity — the gap</h4>
+        <p>Agents need elements of both and something neither provides: runtime policy
+        enforcement based on what the agent is trying to do in the moment, not just
+        what it was provisioned to do at setup time.</p>
+      </div>
+      <div class="compare-card highlight">
+        <h4>What's missing</h4>
+        <p>Session-level revocation when behavior drifts. Scoped, time-limited access grants
+        per task. Human escalation for sensitive actions. Audit trails that capture decisions
+        and context, not just API calls.</p>
+      </div>
+    </div>
+
+    <h2>The questions that need answers</h2>
+
+    <p>
+      When I think about what AI agent governance needs to address, it comes down to six questions
+      that neither existing model handles well:
+    </p>
+
+    <ul>
+      <li><strong>Who gave the agent authority?</strong> Not who provisioned the credential — who approved the agent to act on behalf of a user, a team, or a business process, and under what constraints?</li>
+      <li><strong>What is it allowed to do?</strong> Not just what systems it can access, but what categories of action it's permitted to take — read, write, trigger workflows, make decisions, delegate to other agents.</li>
+      <li><strong>What should require human approval?</strong> There's a category of actions that an agent should be able to propose but not execute autonomously — write access to financial systems, actions that affect customer data, anything with significant or irreversible consequences.</li>
+      <li><strong>How do we limit scope at runtime?</strong> The access granted at provisioning time should be a ceiling, not a floor. What the agent actually uses for a specific task should be the minimum required for that task — issued temporarily, scoped narrowly, expiring when the task completes.</li>
+      <li><strong>How do we trace what happened?</strong> Not just the API calls, but the decisions: what did the agent reason about, what did it choose, what did it escalate, what did it skip?</li>
+      <li><strong>How do we stop it quickly?</strong> If an agent starts behaving outside expected boundaries — unusual data volume, lateral movement across systems, actions inconsistent with its stated task — how fast can we kill the session, and does that require a human in the loop or can it be automated?</li>
+    </ul>
+
+    <h2>The gate between intent and action</h2>
+
+    <p>
+      The concept I keep coming back to is a runtime control point — a gate that sits between
+      the agent's intent and the action it wants to take. Not a provisioning-time gate that
+      grants broad standing access and hopes for the best, but a per-action or per-task gate
+      that evaluates each request against policy in real time.
+    </p>
+
+    <p>
+      This gate does three things that existing controls don't:
+    </p>
+
+    <ul>
+      <li>It issues access for the specific task, not the broadest anticipated use case</li>
+      <li>It routes high-risk actions to a human reviewer before they execute, not after</li>
+      <li>It watches the active session for behavioral drift and revokes access if the agent acts outside what was approved</li>
+    </ul>
+
+    <p>
+      The goal isn't to slow agents down. The goal is to make agent access safe, explainable,
+      and governable — which is actually a prerequisite for deploying them at scale in sensitive
+      enterprise environments. The teams that are nervous about AI agents in production are
+      nervous precisely because they can't answer the six questions above. A runtime control
+      point is what makes those questions answerable.
+    </p>
+
+    <h2>Where identity goes from here</h2>
+
+    <p>
+      The arrival of AI agents as an identity class isn't just a new governance challenge.
+      It's a signal that identity governance is expanding beyond account management into
+      something more fundamental — governing actions, delegation, context, and authority.
+    </p>
+
+    <p>
+      Human identity governance asks: does this person have the right access?
+      Service identity governance asks: does this credential have the right permissions?
+      Agent identity governance will need to ask: does this agent have the right authority,
+      for this task, under these conditions, with these constraints?
+    </p>
+
+    <div class="pullquote">
+      Identity is becoming less about who you are and more about what you're allowed to
+      decide. That's a bigger shift than it sounds.
+    </div>
+
+    <p>
+      For IAM product managers, this is the most interesting space in the discipline right now —
+      not because it's well-defined, but because it isn't. The governance models don't exist yet.
+      The tooling is early. The enterprises deploying AI agents are figuring out the access
+      question in real time, often without a clear framework.
+    </p>
+
+    <p>
+      The teams that build that framework — that figure out what it means to govern an agent's
+      authority rather than just its credentials — will be ahead of where the rest of the
+      industry lands in two or three years. And the product managers who can articulate
+      what that framework needs to look like are exactly the people those teams need.
+    </p>
+
+  </div>
+</div>
+
+<div class="article-wrap">
+  <div class="article-footer">
+    <div class="author-line">
+      Written by <strong>Haritha Reddy</strong> · Senior PM, Identity & Access Management ·
+      <a href="https://linkedin.com/in/harithareddychavva" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+      <a href="post-access-reviews.html" class="btn">← Previous</a>
+      <a href="case-agentgate.html" class="btn primary">See AgentGate concept →</a>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="copy">Haritha Reddy · Bengaluru, India</div>
+    <div class="links">
+      <a href="https://linkedin.com/in/harithareddychavva" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="mailto:harithareddy.c@gmail.com">Email</a>
+      <a href="blog.html">Writing</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

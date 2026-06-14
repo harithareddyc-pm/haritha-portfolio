@@ -15,9 +15,10 @@
   <div class="wrap">
     <div class="brand">harithareddy<span>.dev</span></div>
     <nav>
-      <a href="index.html">Work</a>
       <a href="about.html">About</a>
+      <a href="index.html">Work</a>
       <a href="case-oncall.html" class="current">Case studies</a>
+      <a href="blog.html">Writing</a>
       <a href="mailto:harithareddy.c@gmail.com" class="cta">Get in touch</a>
     </nav>
   </div>
@@ -29,13 +30,13 @@
     <div class="eyebrow">IAM · Access Governance · Risk Scoring</div>
     <h1>EntitlementIQ — Identity Risk Dashboard</h1>
     <p class="lede">
-      A working prototype dashboard for scoring and triaging identity risk — built to explore how access
-      governance teams could prioritize reviews when every account can't get equal attention.
+      A concept exploration of how access governance teams could prioritize entitlement reviews
+      using live risk signals — rather than fixed-schedule audits that treat every account equally.
     </p>
     <div class="cs-meta-row">
-      <div class="cs-meta-item"><div class="k">Stack</div><div class="v">HTML / JS, client-side prototype</div></div>
-      <div class="cs-meta-item"><div class="k">Role</div><div class="v">Product design & prototype build</div></div>
-      <div class="cs-meta-item"><div class="k">Status</div><div class="v">Interactive prototype</div></div>
+      <div class="cs-meta-item"><div class="k">Type</div><div class="v">Concept exploration</div></div>
+      <div class="cs-meta-item"><div class="k">Domain</div><div class="v">IGA · Access governance · NHI</div></div>
+      <div class="cs-meta-item"><div class="k">Status</div><div class="v">Design concept</div></div>
     </div>
   </div>
 </section>
@@ -46,65 +47,59 @@
     <div class="cs-block">
       <h2>The problem</h2>
       <p>
-        Access governance teams typically review entitlements on a fixed schedule — quarterly access certifications,
-        periodic audits — regardless of whether an account's risk has changed. A service account that's been dormant
-        for months and a user account with a recent spike in unusual access requests get the same review cadence,
-        even though they represent very different levels of risk.
+        Access governance teams typically review entitlements on a fixed schedule — quarterly certifications,
+        periodic audits — regardless of whether an account's risk profile has changed. A dormant service account
+        and a user account with a recent spike in unusual access requests get the same review cadence, even though
+        they represent very different levels of risk.
       </p>
       <p>
-        The prototype explores a simple question: if every identity had a live risk rating, what would the workday
-        of someone managing access reviews actually look like — and how would a risk score change what they do next?
+        The question this concept addresses: if every identity had a live risk rating, what would a reviewer's
+        workflow actually look like — and how would that signal change what they prioritize?
       </p>
     </div>
 
     <div class="cs-block">
-      <h2>The prototype</h2>
+      <h2>The core idea</h2>
       <p>
-        EntitlementIQ is a four-screen workflow: a dashboard surfacing risk-rated accounts (HIGH / LOW badges),
-        a request-access flow, an access-reviews queue for approvers, a "my access" view for an individual user,
-        and a risk-scoring API tester that shows how a rating is composed from underlying signals.
+        Risk shouldn't be a separate report you check before a review — it should be part of the review workflow
+        itself. A HIGH risk badge on a dormant service account should surface that account at the top of the queue,
+        not just add a color to a table. The concept keeps risk visible at every step: dashboard, review queue,
+        and individual account view — so reviewers triage by risk, not by alphabetical order or last-modified date.
       </p>
-      <div class="demo-frame">
-        <div class="frame-bar"><div class="dots"><span></span><span></span><span></span></div>entitlementiq-demo.html — click through Dashboard, Access Reviews, and Risk API tabs</div>
-        <iframe src="entitlementiq-demo.html" title="EntitlementIQ identity risk dashboard demo" loading="lazy"></iframe>
-      </div>
-      <p style="margin-top:14px; font-size:13px; color:var(--text-faint);">
-        Use the top navigation inside the demo to move between Dashboard, Request Access, Access Reviews,
-        My Access, and the Risk API tester.
+      <p>
+        This connects directly to NHI/NUA governance: non-human identities (service accounts, API tokens, machine
+        credentials) are exactly where risk signals matter most and receive the least continuous attention.
+        Nobody's "using" a service account day to day in a way that surfaces anomalies the way a human login
+        pattern would — so a risk rating becomes the proxy for the attention that would otherwise be missing.
       </p>
     </div>
 
     <div class="cs-block">
-      <h2>Product thinking behind it</h2>
-      <p>
-        The interesting design problem isn't the risk score itself — it's where the score shows up and what it
-        changes about a reviewer's behavior. A HIGH risk badge on a dormant service account should change the
-        review queue's ordering, not just add a color to a table. The prototype keeps the risk signal visible
-        at every step — dashboard, review queue, and individual access view — so risk isn't something you check
-        separately from the workflow, it's part of the workflow.
-      </p>
-      <p>
-        This connects directly to the NHI/NUA governance work in the experience timeline: non-human identities
-        (service accounts, API tokens, machine credentials) are exactly the population where risk signals matter
-        most and get the least continuous attention, because nobody's "using" them day to day in a way that surfaces
-        anomalies the way a human's login pattern would.
-      </p>
-    </div>
-
-    <div class="cs-block">
-      <h2>Outcome</h2>
-      <div class="outcome-grid">
-        <div class="outcome-card">
-          <div class="num">5 views</div>
-          <div class="lbl">dashboard, request access, access reviews, my access, and a risk API tester in one workflow</div>
+      <h2>Key design decisions</h2>
+      <div class="ledger">
+        <div class="ledger-row">
+          <div class="ledger-time">Risk-first queue</div>
+          <div class="ledger-main">
+            <div class="title">Reviews ordered by risk, not schedule</div>
+            <div class="desc">HIGH risk accounts surface first in the review queue. Reviewers don't need to scan everything — risk score does the triage for them.</div>
+          </div>
+          <div class="ledger-status"><span class="status-pill granted">Core</span></div>
         </div>
-        <div class="outcome-card">
-          <div class="num">2 tiers</div>
-          <div class="lbl">HIGH / LOW risk badges drive what a reviewer sees first</div>
+        <div class="ledger-row">
+          <div class="ledger-time">Signal transparency</div>
+          <div class="ledger-main">
+            <div class="title">Score is explainable, not a black box</div>
+            <div class="desc">The risk rating is composed of underlying signals (dormancy, entitlement breadth, anomalous activity) — reviewers can see why an account is HIGH, not just that it is.</div>
+          </div>
+          <div class="ledger-status"><span class="status-pill granted">Critical</span></div>
         </div>
-        <div class="outcome-card">
-          <div class="num">1 question</div>
-          <div class="lbl">does the risk signal change behavior, or just decorate a table?</div>
+        <div class="ledger-row">
+          <div class="ledger-time">NHI focus</div>
+          <div class="ledger-main">
+            <div class="title">Service accounts are first-class citizens</div>
+            <div class="desc">Non-human identities appear alongside human accounts in the dashboard — not in a separate tool that gets reviewed quarterly and ignored otherwise.</div>
+          </div>
+          <div class="ledger-status"><span class="status-pill concept">Design intent</span></div>
         </div>
       </div>
     </div>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>We're governing the credential. We should be governing the behavior. — Haritha Reddy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .article-wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 28px;
+    position: relative;
+    z-index: 1;
+  }
+  .article-header {
+    padding: 56px 0 40px;
+    border-bottom: 1px solid var(--border);
+  }
+  .article-body {
+    padding: 48px 0 64px;
+  }
+  .article-body p {
+    font-size: 17px;
+    line-height: 1.8;
+    color: var(--text-dim);
+    margin: 0 0 24px;
+  }
+  .article-body p.lead {
+    font-size: 19px;
+    color: var(--text);
+    line-height: 1.75;
+    margin-bottom: 32px;
+  }
+  .article-body h2 {
+    font-size: 22px;
+    margin: 40px 0 16px;
+    color: #f5f7fb;
+  }
+  .article-body h3 {
+    font-size: 17px;
+    font-family: var(--font-mono);
+    color: var(--accent-bright);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 32px 0 12px;
+  }
+  .article-body ul {
+    margin: 0 0 24px;
+    padding-left: 22px;
+    color: var(--text-dim);
+    font-size: 17px;
+    line-height: 1.8;
+  }
+  .article-body li { margin-bottom: 8px; }
+  .article-body strong { color: var(--text); font-weight: 600; }
+  .pullquote {
+    border-left: 3px solid var(--accent);
+    padding: 16px 24px;
+    margin: 32px 0;
+    background: rgba(99, 102, 241, 0.06);
+    border-radius: 0 8px 8px 0;
+    font-size: 19px;
+    line-height: 1.65;
+    color: var(--text);
+    font-style: italic;
+  }
+  .article-footer {
+    padding: 32px 0 48px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .author-line {
+    font-size: 14px;
+    color: var(--text-dim);
+  }
+  .author-line strong { color: var(--text); }
+</style>
+</head>
+<body>
+
+<header class="site-nav">
+  <div class="wrap">
+    <div class="brand">harithareddy<span>.dev</span></div>
+    <nav>
+      <a href="about.html">About</a>
+      <a href="index.html">Work</a>
+      <a href="case-oncall.html">Case studies</a>
+      <a href="blog.html" class="current">Writing</a>
+      <a href="mailto:harithareddy.c@gmail.com" class="cta">Get in touch</a>
+    </nav>
+  </div>
+</header>
+
+<div class="article-header">
+  <div class="article-wrap">
+    <a href="blog.html" style="font-family:var(--font-mono); font-size:13px; color:var(--text-dim); display:inline-block; margin-bottom:24px;">← All writing</a>
+    <div class="eyebrow">NHI · Governance</div>
+    <h1 style="font-size:38px; line-height:1.15; max-width:620px; margin-top:16px;">
+      We're governing the credential.<br>We should be governing the behavior.
+    </h1>
+    <div style="margin-top:24px; font-family:var(--font-mono); font-size:13px; color:var(--text-faint);">
+      Haritha Reddy · June 2026 · 5 min read
+    </div>
+  </div>
+</div>
+
+<div class="article-body">
+  <div class="article-wrap">
+
+    <p class="lead">
+      Non-human identities — service accounts, bots, API tokens, workloads, scripts, integrations —
+      are one of the fastest-growing identity populations in any enterprise. And one of the least
+      well-governed.
+    </p>
+
+    <p>
+      The reason isn't that teams don't care. It's that we're applying the wrong model.
+      Most NHI governance programs are built on the same foundation as human identity governance —
+      the Joiner-Mover-Leaver (JML) framework. And JML is the wrong lens for non-human identities,
+      because non-human identities don't behave like people.
+    </p>
+
+    <h2>The JML problem</h2>
+
+    <p>
+      When a person joins an organisation, we provision access. When they move teams, we adjust it.
+      When they leave, we deprovision. The lifecycle has clear trigger points, clear owners, and
+      clear outcomes.
+    </p>
+
+    <p>
+      Non-human identities don't have any of that.
+    </p>
+
+    <p>
+      A service account doesn't "join" — it gets created for a purpose, often by an app team under
+      time pressure, often with broader access than strictly needed because scoping it precisely would
+      take another week. It doesn't "move teams" — it just keeps running, often long after the team
+      that created it has been reorganised or the original developer has left. And it doesn't "leave"
+      in any clean sense — it accumulates dependencies, becomes load-bearing for some integration
+      nobody fully mapped, and suddenly deprovisioning it feels riskier than leaving it alone.
+    </p>
+
+    <div class="pullquote">
+      Service accounts don't have a lifecycle event. They have a creation event — and then they just run.
+    </div>
+
+    <p>
+      This is how you end up with service accounts that are years old, with standing privileged access,
+      no documented owner, no expiry date, and no clear answer to the question: does this still need to exist?
+    </p>
+
+    <h2>The ownership gap</h2>
+
+    <p>
+      The hardest part of NHI governance isn't technical. It's ownership.
+    </p>
+
+    <p>
+      In most enterprises, the responsibility is genuinely fragmented. IAM teams define the controls.
+      App or platform teams create the accounts. Security teams worry about the risk. Compliance teams
+      want the evidence. But when you ask "who actually owns this identity and what it does?" — the
+      honest answer is often: nobody, specifically.
+    </p>
+
+    <p>
+      IAM thinks it's an app team problem because they created the account. The app team thinks it's
+      an IAM problem because they don't manage credentials. Security is tracking the risk without the
+      context to resolve it. And the account keeps running.
+    </p>
+
+    <p>
+      This fragmentation isn't a gap in policy — it's a gap in product design. The governance tooling
+      and processes weren't built with non-human identities as a primary use case. They were retrofitted.
+      And retrofitting human-identity governance onto machine identities produces exactly the outcomes
+      you'd expect: incomplete coverage, unclear accountability, and risk that compounds quietly over time.
+    </p>
+
+    <h2>What actually needs to change</h2>
+
+    <p>
+      The shift I think matters most is moving from governing the credential to governing the behavior
+      behind it.
+    </p>
+
+    <p>
+      Credential governance — rotating secrets, vaulting passwords, enforcing expiry — is necessary.
+      But it's not sufficient. A rotated credential on an over-privileged service account with no
+      documented owner is still a risk. You've secured the key. You haven't secured what the key opens.
+    </p>
+
+    <p>
+      Governing behavior means being able to answer five questions for every non-human identity in scope:
+    </p>
+
+    <ul>
+      <li><strong>Why does this identity exist?</strong> What purpose was it created for, and is that purpose still active?</li>
+      <li><strong>What can it do?</strong> What systems, data, and actions does its current access permit?</li>
+      <li><strong>Who owns it?</strong> Not who created it — who is accountable for its access and actions today?</li>
+      <li><strong>Is it still needed?</strong> Is it actively being used, or has it gone dormant while retaining its access?</li>
+      <li><strong>What would happen if it were misused?</strong> What's the blast radius if this identity is compromised or acts outside its intended scope?</li>
+    </ul>
+
+    <p>
+      Most organisations can answer the first two for maybe half their non-human identity population.
+      The last three are where the real exposure lives.
+    </p>
+
+    <h2>Why this matters more now</h2>
+
+    <p>
+      The NHI governance problem isn't new — but it's becoming more urgent for two reasons.
+    </p>
+
+    <p>
+      First, the population is growing faster than governance can keep up. Cloud-native architectures,
+      microservices, CI/CD pipelines, and infrastructure-as-code mean that machine identities are being
+      created at a rate that manual processes can't track. The service account that used to be an
+      exception is now the norm.
+    </p>
+
+    <p>
+      Second, AI agents are arriving as a new category of non-human identity — one that's more
+      autonomous, more capable of cross-system action, and less predictable in its behavior than a
+      traditional service account. The governance gaps that exist for machine identities today will be
+      significantly more consequential when the identity in question can make decisions, call APIs,
+      and take actions across your enterprise without a human in the loop.
+    </p>
+
+    <div class="pullquote">
+      Getting NHI governance right now is the prerequisite for governing AI agents safely later.
+    </div>
+
+    <p>
+      The teams that figure out behavioral governance for service accounts and API tokens in the next
+      two years will be significantly better positioned to govern AI agent access than the teams
+      that don't. The problems are related. The discipline translates.
+    </p>
+
+    <h2>The product framing</h2>
+
+    <p>
+      For product managers working in this space: NHI governance is fundamentally a product problem,
+      not just a process or policy problem. You can write all the policies you want about service
+      account ownership and access review cadence. If the tooling doesn't make it easy to answer
+      those five questions, the policies won't be followed consistently at scale.
+    </p>
+
+    <p>
+      The right product question is: how do we make it easier for the teams who create non-human
+      identities to govern them well — rather than making governance something that happens to them
+      from the outside, in a process they don't fully understand or own?
+    </p>
+
+    <p>
+      That's the shift that actually changes outcomes. Not tighter controls on top of the same broken
+      ownership model — but a governance model that's designed for how non-human identities actually
+      work, not for how human identities used to work.
+    </p>
+
+  </div>
+</div>
+
+<div class="article-wrap">
+  <div class="article-footer">
+    <div class="author-line">
+      Written by <strong>Haritha Reddy</strong> · Senior PM, Identity & Access Management ·
+      <a href="https://linkedin.com/in/harithareddychavva" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+    <a href="post-access-reviews.html" class="btn primary">Next article →</a>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="copy">Haritha Reddy · Bengaluru, India</div>
+    <div class="links">
+      <a href="https://linkedin.com/in/harithareddychavva" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="mailto:harithareddy.c@gmail.com">Email</a>
+      <a href="blog.html">Writing</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
